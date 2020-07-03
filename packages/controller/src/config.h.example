@@ -3,6 +3,7 @@
 // the password of the WIFI network
 #define WIFI_PASSPHRASE "***"
 
+// enable Over The Air (OTA) updates
 #define OTA_ENABLE true
 // the name used to identify the device when updating via OTA
 #define OTA_HOSTNAME "MILTON"
@@ -11,3 +12,9 @@
 // the port for the OTA update
 #define OTA_PORT 8266
 
+// enable remote debuggin
+#define DEBUG_ENABLE true
+// set the device hostname for the debugger
+#define DEBUG_HOSTNAME "MILTON"
+// set the password for the debugger
+//#define DEBUG_PASSWORD "***"
