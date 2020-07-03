@@ -1,0 +1,4 @@
+// the name of the WIFI network
+#define WIFI_SSID "***"
+// the password of the WIFI network
+#define WIFI_PASSPHRASE "***"
