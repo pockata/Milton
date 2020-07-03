@@ -2,3 +2,12 @@
 #define WIFI_SSID "***"
 // the password of the WIFI network
 #define WIFI_PASSPHRASE "***"
+
+#define OTA_ENABLE true
+// the name used to identify the device when updating via OTA
+#define OTA_HOSTNAME "MILTON"
+// the password used to authenticate the OTA update
+//#define OTA_PASSWORD "***"
+// the port for the OTA update
+#define OTA_PORT 8266
+
