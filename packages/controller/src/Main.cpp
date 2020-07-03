@@ -1,16 +1,7 @@
-/*
-ESP8266 BlinkWithoutDelay by Simon Peter
-Blink the blue LED on the ESP-01 module
-Based on the Arduino Blink without Delay example
-This example code is in the public domain
-
-The blue LED on the ESP-01 module is connected to GPIO1
-(which is also the TXD pin; so we cannot use Serial.print() at the same time)
-
-Note that this sketch uses LED_BUILTIN to find the pin with the internal LED
-*/
-
 #include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include "./config.h"
+
 
 int ledState = LOW;
 
@@ -18,7 +9,23 @@ unsigned long previousMillis = 0;
 const long interval = 1000;
 
 void setup() {
+    Serial.begin(115200);
+    Serial.println("Booting");
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASSPHRASE);
+
+    while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+        Serial.println("Connection Failed! Rebooting...");
+        delay(5000);
+        ESP.restart();
+    }
+
     pinMode(LED_BUILTIN, OUTPUT);
+
+    Serial.println("Ready");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
 }
 
 void loop() {
