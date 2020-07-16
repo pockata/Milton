@@ -5,6 +5,10 @@
 #include "RemoteDebug.h"  //https://github.com/JoaoLopesF/RemoteDebug
 #include "./config.h"
 
+#include "./MiltonControl.cpp"
+
+MiltonControl Milton;
+
 #if DEBUG_ENABLE
     RemoteDebug Debug;
 #else
@@ -88,6 +92,9 @@ void setup() {
     Serial.println("Ready");
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
+
+    Milton.setup();
+
 }
 
 void loop() {
@@ -106,6 +113,8 @@ void loop() {
 
         debugA("Toggling the LED");
     }
+
+    Milton.handle();
 
     #if DEBUG_ENABLE
         Debug.handle();
