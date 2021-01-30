@@ -18,3 +18,8 @@
 #define DEBUG_HOSTNAME "MILTON"
 // set the password for the debugger
 //#define DEBUG_PASSWORD "***"
+
+// mDNS details
+#define MDNS_NAME String("Milton-") + String(ESP.getChipId(), HEX)
+
+

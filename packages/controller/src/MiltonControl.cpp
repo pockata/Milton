@@ -1,11 +1,21 @@
+#include "./mDNSAnnounce.cpp"
+#include "./config.h"
+
 class MiltonControl {
+    private:
+        mDNSAnnounce *mdns;
+
     public:
-    MiltonControl() {
-    }
+        MiltonControl() {
+            this->mdns = new mDNSAnnounce(MDNS_NAME);
+        }
 
-    void setup() {
-    }
+        void setup() {
+            this->mdns->setup();
+        }
 
-    void handle() {
-    }
+        void handle() {
+            this->mdns->update();
+        }
 };
+
