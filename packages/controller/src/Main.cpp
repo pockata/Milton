@@ -2,20 +2,12 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 
-#include "RemoteDebug.h"  //https://github.com/JoaoLopesF/RemoteDebug
+#include "./debug.h"
 #include "./config.h"
 
 #include "./MiltonControl.cpp"
 
 MiltonControl Milton;
-
-#if DEBUG_ENABLE
-    RemoteDebug Debug;
-#else
-    // swap out debug macros for NOOPs
-    #undef debugA
-    #define debugA(a) ({(void)0;})
-#endif
 
 int ledState = LOW;
 
@@ -23,10 +15,6 @@ unsigned long previousMillis = 0;
 const long interval = 1000;
 
 // sanity checks
-#if DEBUG_ENABLE && !defined(DEBUG_PASSWORD)
-    #error "Please uncomment and set `DEBUG_PASSWORD` in config.h"
-#endif
-
 #if OTA_ENABLE && !defined(OTA_PASSWORD)
     #error "Please uncomment and set `OTA_PASSWORD` in config.h"
 #endif
@@ -34,7 +22,7 @@ const long interval = 1000;
 void setup() {
     // use `Serial` for debugging `setup` and `RemoteDebug` for everything else
     Serial.begin(115200);
-    Serial.println("Booting");
+    Serial.println("\n\nBooting");
 
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASSPHRASE);
@@ -46,13 +34,6 @@ void setup() {
     }
 
     pinMode(LED_BUILTIN, OUTPUT);
-
-#if DEBUG_ENABLE
-    Debug.begin(DEBUG_HOSTNAME);
-    Debug.setResetCmdEnabled(true);
-    Debug.showColors(true);
-    Debug.setPassword(DEBUG_PASSWORD);
-#endif
 
 #if OTA_ENABLE
     // Port defaults to 8266
@@ -94,7 +75,6 @@ void setup() {
     Serial.println(WiFi.localIP());
 
     Milton.setup();
-
 }
 
 void loop() {
@@ -111,13 +91,9 @@ void loop() {
             ledState = LOW;   // Note that this switches the LED *on*
         digitalWrite(LED_BUILTIN, ledState);
 
-        debugA("Toggling the LED");
+        debug("Toggling the LED");
     }
 
     Milton.handle();
-
-    #if DEBUG_ENABLE
-        Debug.handle();
-    #endif
 }
 

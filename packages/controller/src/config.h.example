@@ -12,12 +12,8 @@
 // the port for the OTA update
 #define OTA_PORT 8266
 
-// enable remote debuggin
+// enable debugging via Serial
 #define DEBUG_ENABLE true
-// set the device hostname for the debugger
-#define DEBUG_HOSTNAME "MILTON"
-// set the password for the debugger
-//#define DEBUG_PASSWORD "***"
 
 // mDNS details
 #define MDNS_NAME String("Milton-") + String(ESP.getChipId(), HEX)
