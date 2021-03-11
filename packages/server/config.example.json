@@ -1,0 +1,12 @@
+{
+    "server": {
+        "address": ":8080"
+    },
+    "MQTT": {
+        "server": "",
+        "port": "",
+        "user": "",
+        "password": ""
+    }
+}
+
