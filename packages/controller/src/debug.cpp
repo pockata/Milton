@@ -19,7 +19,9 @@
         vsnprintf(buff, SERIAL_PRINTF_MAX_BUFF, fmt, pargs);
         va_end(pargs);
 
-        Serial.print(buff);
+        char msg[] = "\n";
+        strcat(msg, buff);
+        Serial.print(msg);
     }
 #else
     void debug(const char *fmt, ...) {}
