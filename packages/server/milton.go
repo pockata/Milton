@@ -10,9 +10,14 @@ import (
 var Config Configuration = readConfig()
 
 var m MQTT
+var db DB
 
 func main() {
 	m.setup()
+
+	db.init()
+	// defer db.close()
+	db.log("lek", "vyiiiiiiiiiii")
 
 	router := mux.NewRouter().StrictSlash(true)
 
