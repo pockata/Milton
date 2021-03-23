@@ -12,3 +12,5 @@
 # the main config file
 config.json
 
+sqlite.db
+

@@ -10,9 +10,11 @@ import (
 var Config Configuration = readConfig()
 
 var m MQTT
+var db DB
 
 func main() {
 	m.setup()
+	db.setup()
 
 	router := mux.NewRouter().StrictSlash(true)
 
