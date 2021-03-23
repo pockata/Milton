@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"milton/routes"
 )
 
 var Config Configuration = readConfig()
@@ -21,7 +20,7 @@ func main() {
 
 	api := router.PathPrefix("/api/").Subrouter()
 
-	api.HandleFunc("/query-active-units", routes.QueryActiveUnits)
+	api.HandleFunc("/query-active-units", queryActiveUnits)
 
 	log.Fatal(http.ListenAndServe(Config.Server.Address, router))
 }

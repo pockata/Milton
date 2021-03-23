@@ -35,6 +35,7 @@ func (m MQTT) setup() {
 
 	m.client = mqtt.NewClient(opts)
 	if token := m.client.Connect(); token.Wait() && token.Error() != nil {
+		// TODO: Handle error more gracefully
 		panic(token.Error())
 	}
 
