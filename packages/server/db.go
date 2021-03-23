@@ -22,7 +22,7 @@ type Unit struct {
 	MDNS string `gorm:"unique;not null"`
 }
 
-type Plant struct {
+type Pot struct {
 	gorm.Model
 
 	Name string `gorm:"not null"`
@@ -37,8 +37,8 @@ type Job struct {
 	UnitID int `gorm:"not null"`
 	Unit   Unit
 
-	PlantID int `gorm:"not null"`
-	Plant   Plant
+	PotID int `gorm:"not null"`
+	Pot   Pot
 
 	WaterQty  int       `gorm:"not null"`
 	StartTime time.Time `gorm:"not null"`
@@ -74,7 +74,7 @@ func (db *DB) setup() {
 
 	// Migrate the schemas
 	db.instance.AutoMigrate(&Unit{})
-	db.instance.AutoMigrate(&Plant{})
+	db.instance.AutoMigrate(&Pot{})
 	db.instance.AutoMigrate(&Job{})
 	db.instance.AutoMigrate(&Log{})
 }
