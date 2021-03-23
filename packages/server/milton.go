@@ -18,7 +18,7 @@ func main() {
 
 	api := router.PathPrefix("/api/").Subrouter()
 
-	api.HandleFunc("/query-active-pumps", queryPumps)
+	api.HandleFunc("/query-active-units", queryActiveUnits)
 
 	log.Fatal(http.ListenAndServe(Config.Server.Address, router))
 }
