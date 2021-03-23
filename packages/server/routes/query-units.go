@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ type PumpController struct {
 	IP   net.IP
 }
 
-func queryActiveUnits(rw http.ResponseWriter, r *http.Request) {
+func QueryActiveUnits(rw http.ResponseWriter, r *http.Request) {
 	// Make a channel for results and start listening
 	entriesCh := make(chan *mdns.ServiceEntry, 4)
 
