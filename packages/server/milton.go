@@ -20,7 +20,7 @@ func main() {
 
 	api := router.PathPrefix("/api/").Subrouter()
 
-	api.HandleFunc("/query-active-units", queryActiveUnits)
+	api.HandleFunc("/query-active-units", queryActiveUnits).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(Config.Server.Address, router))
 }
