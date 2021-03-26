@@ -16,14 +16,20 @@ type DB struct {
 }
 
 type Unit struct {
-	gorm.Model
+	ID        uint           `gorm:"primaryKey"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
 	Name string `gorm:"not null"`
 	MDNS string `gorm:"unique;not null"`
 }
 
 type Pot struct {
-	gorm.Model
+	ID        uint           `gorm:"primaryKey"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
 	Name string `gorm:"not null"`
 
@@ -32,7 +38,10 @@ type Pot struct {
 }
 
 type Job struct {
-	gorm.Model
+	ID        uint           `gorm:"primaryKey"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
 	UnitID int `gorm:"not null"`
 	Unit   Unit
@@ -46,7 +55,10 @@ type Job struct {
 }
 
 type Log struct {
-	gorm.Model
+	ID        uint           `gorm:"primaryKey"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
 	UnitID int
 	Unit   Unit
