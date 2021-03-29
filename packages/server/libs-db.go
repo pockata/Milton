@@ -23,6 +23,8 @@ type Unit struct {
 
 	Name string `gorm:"not null"`
 	MDNS string `gorm:"unique;not null"`
+
+	Pots []Pot
 }
 
 type Pot struct {
@@ -33,8 +35,7 @@ type Pot struct {
 
 	Name string `gorm:"not null"`
 
-	UnitID int `gorm:"not null"`
-	Unit   Unit
+	UnitID uint `gorm:"not null"`
 }
 
 type Job struct {
@@ -43,10 +44,10 @@ type Job struct {
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
-	UnitID int `gorm:"not null"`
+	UnitID uint `gorm:"not null"`
 	Unit   Unit
 
-	PotID int `gorm:"not null"`
+	PotID uint `gorm:"not null"`
 	Pot   Pot
 
 	WaterQty  int       `gorm:"not null"`
@@ -60,10 +61,10 @@ type Log struct {
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
-	UnitID int
+	UnitID uint
 	Unit   Unit
 
-	JobID int
+	JobID uint
 	Job   Job
 
 	Message string `gorm:"not null"`
