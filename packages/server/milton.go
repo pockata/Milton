@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"milton/helpers"
 	"milton/libs/config"
 	"milton/libs/mqtt"
 	"milton/models"
@@ -24,25 +25,25 @@ func main() {
 
 	api := router.PathPrefix("/api/").Subrouter()
 
-	api.HandleFunc("/query-active-units", queryActiveUnits).Methods("GET")
+	api.HandleFunc("/query-active-units", helpers.WrapHandler(db, queryActiveUnits)).Methods("GET")
 
 	// units
-	api.HandleFunc("/get-all-units", getAllUnits).Methods("GET")
-	api.HandleFunc("/pair-unit", pairUnit).Methods("POST")
-	api.HandleFunc("/unpair-unit", unpairUnit).Methods("POST")
+	api.HandleFunc("/get-all-units", helpers.WrapHandler(db, getAllUnits)).Methods("GET")
+	api.HandleFunc("/pair-unit", helpers.WrapHandler(db, pairUnit)).Methods("POST")
+	api.HandleFunc("/unpair-unit", helpers.WrapHandler(db, unpairUnit)).Methods("POST")
 
 	// pots
-	api.HandleFunc("/add-pot", addPot).Methods("POST")
-	api.HandleFunc("/get-pots/{UnitID}", getPots).Methods("GET")
-	api.HandleFunc("/update-pot", updatePot).Methods("POST")
-	api.HandleFunc("/remove-pot", removePot).Methods("POST")
+	api.HandleFunc("/add-pot", helpers.WrapHandler(db, addPot)).Methods("POST")
+	api.HandleFunc("/get-pots/{UnitID}", helpers.WrapHandler(db, getPots)).Methods("GET")
+	api.HandleFunc("/update-pot", helpers.WrapHandler(db, updatePot)).Methods("POST")
+	api.HandleFunc("/remove-pot", helpers.WrapHandler(db, removePot)).Methods("POST")
 
 	// watering jobs
-	api.HandleFunc("/add-job", addJob).Methods("POST")
-	api.HandleFunc("/remove-job", removeJob).Methods("POST")
-	api.HandleFunc("/update-job", updateJob).Methods("POST")
-	api.HandleFunc("/get-jobs", getJobs).Methods("GET")
-	api.HandleFunc("/get-job/{JobID}", getJob).Methods("GET")
+	api.HandleFunc("/add-job", helpers.WrapHandler(db, addJob)).Methods("POST")
+	api.HandleFunc("/remove-job", helpers.WrapHandler(db, removeJob)).Methods("POST")
+	api.HandleFunc("/update-job", helpers.WrapHandler(db, updateJob)).Methods("POST")
+	api.HandleFunc("/get-jobs", helpers.WrapHandler(db, getJobs)).Methods("GET")
+	api.HandleFunc("/get-job/{JobID}", helpers.WrapHandler(db, getJob)).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(Config.Server.Address, router))
 }

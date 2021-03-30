@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/mdns"
 	"net"
 	"net/http"
+
+	"milton/models"
 )
 
 type PumpController struct {
@@ -17,7 +19,7 @@ type PumpController struct {
 	IP   net.IP
 }
 
-func queryActiveUnits(rw http.ResponseWriter, r *http.Request) {
+func queryActiveUnits(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	// Make a channel for results and start listening
 	entriesCh := make(chan *mdns.ServiceEntry, 4)
 

@@ -9,14 +9,14 @@ import (
 	"milton/models"
 )
 
-func getAllUnits(rw http.ResponseWriter, r *http.Request) {
+func getAllUnits(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	var units []models.Unit
 	db.Instance.Find(&units)
 
 	helpers.SuccessResponse(rw, units)
 }
 
-func pairUnit(rw http.ResponseWriter, r *http.Request) {
+func pairUnit(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Println("Error parsing form data", err)
@@ -35,6 +35,6 @@ func pairUnit(rw http.ResponseWriter, r *http.Request) {
 	helpers.CreateEntry(rw, r, *db.Instance, &entry)
 }
 
-func unpairUnit(rw http.ResponseWriter, r *http.Request) {
+func unpairUnit(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	helpers.DeleteEntry(rw, r, *db.Instance, &models.Job{})
 }
