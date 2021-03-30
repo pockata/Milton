@@ -13,14 +13,14 @@ import (
 	"milton/routes"
 )
 
-var Config config.Configuration = config.Read()
-
-var m mqtt.MQTT
-var db models.DB
-
 func main() {
-	m.Setup(Config.MQTT)
+	var m mqtt.MQTT
+	var db models.DB
+
+	Config := config.Read()
+
 	db.Setup()
+	m.Setup(Config.MQTT)
 
 	router := mux.NewRouter().StrictSlash(true)
 
