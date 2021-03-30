@@ -5,16 +5,19 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+
+	"milton/libs/config"
+	"milton/libs/mqtt"
 	"milton/models"
 )
 
-var Config Configuration = readConfig()
+var Config config.Configuration = config.Read()
 
-var m MQTT
+var m mqtt.MQTT
 var db models.DB
 
 func main() {
-	m.setup()
+	m.Setup(Config.MQTT)
 	db.Setup()
 
 	router := mux.NewRouter().StrictSlash(true)

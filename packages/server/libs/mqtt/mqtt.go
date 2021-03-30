@@ -1,4 +1,4 @@
-package main
+package mqtt
 
 import (
 	"fmt"
@@ -12,19 +12,26 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 }
 
+type MQTTConfig struct {
+	Server   string `json:"server"`
+	Port     string `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+}
+
 type MQTT struct {
 	client mqtt.Client
 }
 
-func (m MQTT) setup() {
+func (m MQTT) Setup(Config MQTTConfig) {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(
-		fmt.Sprintf("tcp://%s:%s", Config.MQTT.Server, Config.MQTT.Port),
+		fmt.Sprintf("tcp://%s:%s", Config.Server, Config.Port),
 	)
 	opts.SetClientID("MiltonServer")
 	opts.SetAutoReconnect(true)
-	opts.SetUsername(Config.MQTT.User)
-	opts.SetPassword(Config.MQTT.Password)
+	opts.SetUsername(Config.User)
+	opts.SetPassword(Config.Password)
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = func(client mqtt.Client) {
 		fmt.Println("Connected")
@@ -43,7 +50,7 @@ func (m MQTT) setup() {
 	m.client.Subscribe(topic, 2, nil)
 }
 
-func (m MQTT) sendCommand(topic string, cmd string) {
+func (m MQTT) SendCommand(topic string, cmd string) {
 	token := m.client.Publish(topic, 2, false, cmd)
 	isReceived := token.WaitTimeout(time.Second * 3)
 
@@ -54,6 +61,6 @@ func (m MQTT) sendCommand(topic string, cmd string) {
 	}
 }
 
-func (m MQTT) sendCommandToUnit(unit string, cmd string) {
-	m.sendCommand(fmt.Sprintf("milton/unit/%s", unit), cmd)
+func (m MQTT) SendCommandToUnit(unit string, cmd string) {
+	m.SendCommand(fmt.Sprintf("milton/unit/%s", unit), cmd)
 }
