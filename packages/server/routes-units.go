@@ -4,11 +4,13 @@ import (
 	"errors"
 	"log"
 	"net/http"
+
+	"milton/models"
 )
 
 func getAllUnits(rw http.ResponseWriter, r *http.Request) {
-	var units []Unit
-	db.instance.Find(&units)
+	var units []models.Unit
+	db.Instance.Find(&units)
 
 	successResponse(rw, units)
 }
@@ -28,10 +30,10 @@ func pairUnit(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entry := &Unit{MDNS: mdns, Name: name}
-	createEntry(rw, r, *db.instance, &entry)
+	entry := &models.Unit{MDNS: mdns, Name: name}
+	createEntry(rw, r, *db.Instance, &entry)
 }
 
 func unpairUnit(rw http.ResponseWriter, r *http.Request) {
-	deleteEntry(rw, r, *db.instance, &Job{})
+	deleteEntry(rw, r, *db.Instance, &models.Job{})
 }

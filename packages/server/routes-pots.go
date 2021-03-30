@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+
+	"milton/models"
 )
 
 func addPot(rw http.ResponseWriter, r *http.Request) {
@@ -24,25 +26,25 @@ func addPot(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var unit Unit
-	find := db.instance.First(&unit, unitID)
+	var unit models.Unit
+	find := db.Instance.First(&unit, unitID)
 
 	if find.Error != nil {
 		errorResponse(rw, find.Error)
 		return
 	}
 
-	entry := &Pot{UnitID: unit.ID, Name: name}
-	createEntry(rw, r, *db.instance, &entry)
+	entry := &models.Pot{UnitID: unit.ID, Name: name}
+	createEntry(rw, r, *db.Instance, &entry)
 }
 
 func removePot(rw http.ResponseWriter, r *http.Request) {
-	deleteEntry(rw, r, *db.instance, &Pot{})
+	deleteEntry(rw, r, *db.Instance, &models.Pot{})
 }
 
 func getPots(rw http.ResponseWriter, r *http.Request) {
-	var pots []Pot
-	var unit Unit
+	var pots []models.Pot
+	var unit models.Unit
 
 	vars := mux.Vars(r)
 
@@ -52,19 +54,19 @@ func getPots(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	findUnit := db.instance.First(&unit, unitID)
+	findUnit := db.Instance.First(&unit, unitID)
 	if findUnit.Error != nil {
 		errorResponse(rw, errors.New("Non-existing unit ID"))
 		return
 	}
 
-	db.instance.Model(&unit).Association("Pots").Find(&pots)
+	db.Instance.Model(&unit).Association("Pots").Find(&pots)
 
 	successResponse(rw, pots)
 }
 
 func updatePot(rw http.ResponseWriter, r *http.Request) {
-	var pot []Pot
+	var pot []models.Pot
 
 	err := r.ParseForm()
 	if err != nil {
@@ -88,13 +90,13 @@ func updatePot(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	findPot := db.instance.Find(&pot, potID)
+	findPot := db.Instance.Find(&pot, potID)
 	if findPot.Error != nil {
 		errorResponse(rw, findPot.Error)
 		return
 	}
 
-	db.instance.Model(&pot).Updates(Pot{
+	db.Instance.Model(&pot).Updates(models.Pot{
 		Name:   name,
 		UnitID: uint(UnitID),
 	})

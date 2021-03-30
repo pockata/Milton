@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+
+	"milton/models"
 )
 
 func addJob(rw http.ResponseWriter, r *http.Request) {
@@ -38,22 +40,22 @@ func addJob(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var unit Unit
-	var pot Pot
+	var unit models.Unit
+	var pot models.Pot
 
-	findUnit := db.instance.First(&unit, unitID)
+	findUnit := db.Instance.First(&unit, unitID)
 	if findUnit.Error != nil {
 		errorResponse(rw, findUnit.Error)
 		return
 	}
 
-	findPot := db.instance.First(&pot, potID)
+	findPot := db.Instance.First(&pot, potID)
 	if findPot.Error != nil {
 		errorResponse(rw, findPot.Error)
 		return
 	}
 
-	entry := &Job{
+	entry := &models.Job{
 		Unit:      unit,
 		Pot:       pot,
 		WaterQty:  waterQty,
@@ -61,15 +63,15 @@ func addJob(rw http.ResponseWriter, r *http.Request) {
 		Status:    status,
 	}
 
-	createEntry(rw, r, *db.instance, &entry)
+	createEntry(rw, r, *db.Instance, &entry)
 }
 
 func removeJob(rw http.ResponseWriter, r *http.Request) {
-	deleteEntry(rw, r, *db.instance, &Job{})
+	deleteEntry(rw, r, *db.Instance, &models.Job{})
 }
 
 func getJob(rw http.ResponseWriter, r *http.Request) {
-	var job Job
+	var job models.Job
 
 	vars := mux.Vars(r)
 
@@ -79,7 +81,7 @@ func getJob(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	findJob := db.instance.Preload("Unit").Preload("Pot").First(&job, jobID)
+	findJob := db.Instance.Preload("Unit").Preload("Pot").First(&job, jobID)
 	if findJob.Error != nil {
 		errorResponse(rw, errors.New("Non-existing job ID"))
 		return
@@ -89,9 +91,9 @@ func getJob(rw http.ResponseWriter, r *http.Request) {
 }
 
 func getJobs(rw http.ResponseWriter, r *http.Request) {
-	var jobs []Job
+	var jobs []models.Job
 
-	getJobs := db.instance.Preload("Unit").Preload("Pot").Find(&jobs)
+	getJobs := db.Instance.Preload("Unit").Preload("Pot").Find(&jobs)
 
 	if getJobs.Error != nil {
 		errorResponse(rw, getJobs.Error)
@@ -102,7 +104,7 @@ func getJobs(rw http.ResponseWriter, r *http.Request) {
 }
 
 func updateJob(rw http.ResponseWriter, r *http.Request) {
-	var job Job
+	var job models.Job
 
 	err := r.ParseForm()
 	if err != nil {
@@ -130,13 +132,13 @@ func updateJob(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	findJob := db.instance.First(&job, jobID)
+	findJob := db.Instance.First(&job, jobID)
 	if findJob.Error != nil {
 		errorResponse(rw, findJob.Error)
 		return
 	}
 
-	db.instance.Model(&job).Updates(Job{
+	db.Instance.Model(&job).Updates(models.Job{
 		WaterQty:  waterQty,
 		StartTime: startTime,
 		Status:    status,
