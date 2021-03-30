@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 
 type DB struct {
 	SQLFile  string
-	instance *gorm.DB
+	Instance *gorm.DB
 }
 
 type Unit struct {
@@ -70,7 +70,7 @@ type Log struct {
 	Message string `gorm:"not null"`
 }
 
-func (db *DB) setup() {
+func (db *DB) Setup() {
 	var err error
 
 	db.SQLFile = "./sqlite.db"
@@ -80,16 +80,16 @@ func (db *DB) setup() {
 		db._create()
 	}
 
-	db.instance, err = gorm.Open(sqlite.Open(db.SQLFile), &gorm.Config{})
+	db.Instance, err = gorm.Open(sqlite.Open(db.SQLFile), &gorm.Config{})
 	if err != nil {
 		panic(fmt.Sprintf("Couldn't open %s", db.SQLFile))
 	}
 
 	// Migrate the schemas
-	db.instance.AutoMigrate(&Unit{})
-	db.instance.AutoMigrate(&Pot{})
-	db.instance.AutoMigrate(&Job{})
-	db.instance.AutoMigrate(&Log{})
+	db.Instance.AutoMigrate(&Unit{})
+	db.Instance.AutoMigrate(&Pot{})
+	db.Instance.AutoMigrate(&Job{})
+	db.Instance.AutoMigrate(&Log{})
 }
 
 func (db *DB) _create() {

@@ -1,4 +1,4 @@
-package main
+package helpers
 
 import (
 	"errors"
@@ -6,13 +6,29 @@ import (
 	"net/http"
 
 	"gorm.io/gorm"
+
+	"milton/models"
 )
+
+func WrapHandler(
+	db models.DB,
+	handler func(
+		rw http.ResponseWriter,
+		r *http.Request,
+		db models.DB,
+	),
+) func(http.ResponseWriter, *http.Request) {
+
+	return func(rw http.ResponseWriter, r *http.Request) {
+		handler(rw, r, db)
+	}
+}
 
 type CreateEntryResponse struct {
 	Entry *interface{} `json:"entry"`
 }
 
-func createEntry(
+func CreateEntry(
 	rw http.ResponseWriter,
 	r *http.Request,
 	db gorm.DB,
@@ -21,16 +37,16 @@ func createEntry(
 	res := db.Create(entry)
 
 	if res.Error != nil {
-		errorResponse(rw, res.Error)
+		ErrorResponse(rw, res.Error)
 		return
 	}
 
-	successResponse(rw, CreateEntryResponse{
+	SuccessResponse(rw, CreateEntryResponse{
 		Entry: &entry,
 	})
 }
 
-func deleteEntry(
+func DeleteEntry(
 	rw http.ResponseWriter,
 	r *http.Request,
 	db gorm.DB,
@@ -44,17 +60,17 @@ func deleteEntry(
 
 	ID := r.Form.Get("ID")
 
-	if !checkParams(ID) {
-		errorResponse(rw, errors.New("Invalid request. Missing parameters"))
+	if !CheckParams(ID) {
+		ErrorResponse(rw, errors.New("Invalid request. Missing parameters"))
 		return
 	}
 
 	res := db.Unscoped().Where("ID = ?", ID).Delete(entry)
 
 	if res.Error != nil {
-		errorResponse(rw, res.Error)
+		ErrorResponse(rw, res.Error)
 		return
 	}
 
-	successResponse(rw, nil)
+	SuccessResponse(rw, nil)
 }

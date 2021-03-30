@@ -1,8 +1,10 @@
-package main
+package config
 
 import (
 	"encoding/json"
 	"os"
+
+	"milton/libs/mqtt"
 )
 
 type Configuration struct {
@@ -10,15 +12,10 @@ type Configuration struct {
 		Address string `json:"address"`
 	} `json:"server"`
 
-	MQTT struct {
-		Server   string `json:"server"`
-		Port     string `json:"port"`
-		User     string `json:"user"`
-		Password string `json:"password"`
-	} `json:"mqtt"`
+	MQTT mqtt.MQTTConfig `json:"mqtt"`
 }
 
-func readConfig() Configuration {
+func Read() Configuration {
 	configFile, fileErr := os.Open("./config.json")
 
 	if fileErr != nil {
