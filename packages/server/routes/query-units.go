@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
+	"net/http"
 	"strings"
 	"sync"
 
 	"github.com/hashicorp/mdns"
-	"net"
-	"net/http"
 
 	"milton/models"
 )
