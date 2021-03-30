@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 	"milton/models"
 )
 
-func addPot(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func AddPot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Println("Error parsing form data", err)
@@ -39,11 +39,11 @@ func addPot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	helpers.CreateEntry(rw, r, *db.Instance, &entry)
 }
 
-func removePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func RemovePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	helpers.DeleteEntry(rw, r, *db.Instance, &models.Pot{})
 }
 
-func getPots(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func GetPots(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	var pots []models.Pot
 	var unit models.Unit
 
@@ -66,7 +66,7 @@ func getPots(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	helpers.SuccessResponse(rw, pots)
 }
 
-func updatePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func UpdatePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	var pot []models.Pot
 
 	err := r.ParseForm()

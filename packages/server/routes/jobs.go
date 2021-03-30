@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 	"milton/models"
 )
 
-func addJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func AddJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Println("Error parsing form data", err)
@@ -67,11 +67,11 @@ func addJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	helpers.CreateEntry(rw, r, *db.Instance, &entry)
 }
 
-func removeJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func RemoveJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	helpers.DeleteEntry(rw, r, *db.Instance, &models.Job{})
 }
 
-func getJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func GetJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	var job models.Job
 
 	vars := mux.Vars(r)
@@ -91,7 +91,7 @@ func getJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	helpers.SuccessResponse(rw, job)
 }
 
-func getJobs(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func GetJobs(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	var jobs []models.Job
 
 	getJobs := db.Instance.Preload("Unit").Preload("Pot").Find(&jobs)
@@ -104,7 +104,7 @@ func getJobs(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	helpers.SuccessResponse(rw, jobs)
 }
 
-func updateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	var job models.Job
 
 	err := r.ParseForm()
