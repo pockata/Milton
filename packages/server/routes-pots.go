@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"milton/helpers"
 	"milton/models"
 )
 
@@ -21,8 +22,8 @@ func addPot(rw http.ResponseWriter, r *http.Request) {
 	unitID := r.PostForm.Get("UnitID")
 	name := r.PostForm.Get("Name")
 
-	if !checkParams(name, unitID) {
-		errorResponse(rw, errors.New("Invalid request. Missing parameters"))
+	if !helpers.CheckParams(name, unitID) {
+		helpers.ErrorResponse(rw, errors.New("Invalid request. Missing parameters"))
 		return
 	}
 
@@ -30,16 +31,16 @@ func addPot(rw http.ResponseWriter, r *http.Request) {
 	find := db.Instance.First(&unit, unitID)
 
 	if find.Error != nil {
-		errorResponse(rw, find.Error)
+		helpers.ErrorResponse(rw, find.Error)
 		return
 	}
 
 	entry := &models.Pot{UnitID: unit.ID, Name: name}
-	createEntry(rw, r, *db.Instance, &entry)
+	helpers.CreateEntry(rw, r, *db.Instance, &entry)
 }
 
 func removePot(rw http.ResponseWriter, r *http.Request) {
-	deleteEntry(rw, r, *db.Instance, &models.Pot{})
+	helpers.DeleteEntry(rw, r, *db.Instance, &models.Pot{})
 }
 
 func getPots(rw http.ResponseWriter, r *http.Request) {
@@ -50,19 +51,19 @@ func getPots(rw http.ResponseWriter, r *http.Request) {
 
 	unitID, err := strconv.Atoi(vars["UnitID"])
 	if err != nil {
-		errorResponse(rw, errors.New("Invalid unit ID"))
+		helpers.ErrorResponse(rw, errors.New("Invalid unit ID"))
 		return
 	}
 
 	findUnit := db.Instance.First(&unit, unitID)
 	if findUnit.Error != nil {
-		errorResponse(rw, errors.New("Non-existing unit ID"))
+		helpers.ErrorResponse(rw, errors.New("Non-existing unit ID"))
 		return
 	}
 
 	db.Instance.Model(&unit).Association("Pots").Find(&pots)
 
-	successResponse(rw, pots)
+	helpers.SuccessResponse(rw, pots)
 }
 
 func updatePot(rw http.ResponseWriter, r *http.Request) {
@@ -78,21 +79,21 @@ func updatePot(rw http.ResponseWriter, r *http.Request) {
 	name := r.PostForm.Get("Name")
 	UnitIDStr := r.PostForm.Get("UnitID")
 
-	if !checkParams(potID, name, UnitIDStr) {
-		errorResponse(rw, errors.New("Invalid parameters"))
+	if !helpers.CheckParams(potID, name, UnitIDStr) {
+		helpers.ErrorResponse(rw, errors.New("Invalid parameters"))
 		return
 	}
 
 	UnitID, err := strconv.ParseUint(UnitIDStr, 10, 32)
 
 	if err != nil {
-		errorResponse(rw, err)
+		helpers.ErrorResponse(rw, err)
 		return
 	}
 
 	findPot := db.Instance.Find(&pot, potID)
 	if findPot.Error != nil {
-		errorResponse(rw, findPot.Error)
+		helpers.ErrorResponse(rw, findPot.Error)
 		return
 	}
 
@@ -101,5 +102,5 @@ func updatePot(rw http.ResponseWriter, r *http.Request) {
 		UnitID: uint(UnitID),
 	})
 
-	successResponse(rw, &pot)
+	helpers.SuccessResponse(rw, &pot)
 }

@@ -1,4 +1,4 @@
-package main
+package helpers
 
 import (
 	"encoding/json"
@@ -17,33 +17,33 @@ type ErrorResponseType struct {
 }
 
 // handle API responses
-func apiResponse(rw http.ResponseWriter, code int, data interface{}) {
+func ApiResponse(rw http.ResponseWriter, code int, data interface{}) {
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	rw.WriteHeader(code)
 	json.NewEncoder(rw).Encode(data)
 }
 
 // handle successful API responses
-func successResponse(rw http.ResponseWriter, data interface{}) {
+func SuccessResponse(rw http.ResponseWriter, data interface{}) {
 	resp := SuccessResponseType{
 		Error: false,
 		Data:  data,
 	}
 
-	apiResponse(rw, http.StatusOK, resp)
+	ApiResponse(rw, http.StatusOK, resp)
 }
 
 // handle erroneous API responses
-func errorResponse(rw http.ResponseWriter, error error) {
+func ErrorResponse(rw http.ResponseWriter, error error) {
 	resp := ErrorResponseType{
 		Error: error,
 		Msg:   fmt.Sprintf("%v", error),
 	}
 
-	apiResponse(rw, http.StatusBadRequest, resp)
+	ApiResponse(rw, http.StatusBadRequest, resp)
 }
 
-func checkParams(args ...string) bool {
+func CheckParams(args ...string) bool {
 	for _, arg := range args {
 		if arg == "" {
 			return false
