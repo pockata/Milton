@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     "env": {
         "browser": true,
         "es2021": true,
@@ -6,6 +6,7 @@ export default {
     },
     "extends": [
         "eslint:recommended",
+        "plugin:react/recommended",
         "plugin:@next/next/recommended"
     ],
     "parserOptions": {
@@ -19,5 +20,7 @@ export default {
         "react"
     ],
     "rules": {
+        "react/prop-types": [2, { ignore: ['children'] }],
+        "react/react-in-jsx-scope": "off"
     }
 };

@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@next/eslint-plugin-next": "^10.1.2",
     "directory-named-webpack-plugin": "^4.0.1",
     "next": "10.1.2",
     "normalize.css": "^8.0.1",
