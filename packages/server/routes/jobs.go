@@ -27,7 +27,7 @@ func AddJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
 	if !helpers.CheckParams(unitID, potID, waterQtyStr, startTimeStr, statusStr) {
-		helpers.ErrorResponse(rw, errors.New("Invalid request. Missing parameters"))
+		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
 		return
 	}
 
@@ -37,7 +37,7 @@ func AddJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	status, _ := strconv.Atoi(statusStr)
 
 	if startTime.Before(time.Now()) {
-		helpers.ErrorResponse(rw, errors.New("Start time should be in the future"))
+		helpers.ErrorResponse(rw, r, errors.New("Start time should be in the future"))
 		return
 	}
 
@@ -46,13 +46,13 @@ func AddJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 
 	findUnit := db.Instance.First(&unit, unitID)
 	if findUnit.Error != nil {
-		helpers.ErrorResponse(rw, findUnit.Error)
+		helpers.ErrorResponse(rw, r, findUnit.Error)
 		return
 	}
 
 	findPot := db.Instance.First(&pot, potID)
 	if findPot.Error != nil {
-		helpers.ErrorResponse(rw, findPot.Error)
+		helpers.ErrorResponse(rw, r, findPot.Error)
 		return
 	}
 
@@ -78,17 +78,17 @@ func GetJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 
 	jobID, err := strconv.Atoi(vars["JobID"])
 	if err != nil {
-		helpers.ErrorResponse(rw, errors.New("Invalid job ID"))
+		helpers.ErrorResponse(rw, r, errors.New("Invalid job ID"))
 		return
 	}
 
 	findJob := db.Instance.Preload("Unit").Preload("Pot").First(&job, jobID)
 	if findJob.Error != nil {
-		helpers.ErrorResponse(rw, errors.New("Non-existing job ID"))
+		helpers.ErrorResponse(rw, r, errors.New("Non-existing job ID"))
 		return
 	}
 
-	helpers.SuccessResponse(rw, job)
+	helpers.SuccessResponse(rw, r, job)
 }
 
 func GetJobs(rw http.ResponseWriter, r *http.Request, db models.DB) {
@@ -97,11 +97,11 @@ func GetJobs(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	getJobs := db.Instance.Preload("Unit").Preload("Pot").Find(&jobs)
 
 	if getJobs.Error != nil {
-		helpers.ErrorResponse(rw, getJobs.Error)
+		helpers.ErrorResponse(rw, r, getJobs.Error)
 		return
 	}
 
-	helpers.SuccessResponse(rw, jobs)
+	helpers.SuccessResponse(rw, r, jobs)
 }
 
 func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
@@ -119,7 +119,7 @@ func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
 	if !helpers.CheckParams(jobID, waterQtyStr, startTimeStr, statusStr) {
-		helpers.ErrorResponse(rw, errors.New("Invalid request. Missing parameters"))
+		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
 		return
 	}
 
@@ -129,13 +129,13 @@ func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	status, _ := strconv.Atoi(statusStr)
 
 	if startTime.Before(time.Now()) {
-		helpers.ErrorResponse(rw, errors.New("Start time should be in the future"))
+		helpers.ErrorResponse(rw, r, errors.New("Start time should be in the future"))
 		return
 	}
 
 	findJob := db.Instance.First(&job, jobID)
 	if findJob.Error != nil {
-		helpers.ErrorResponse(rw, findJob.Error)
+		helpers.ErrorResponse(rw, r, findJob.Error)
 		return
 	}
 
@@ -145,5 +145,5 @@ func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 		Status:    status,
 	})
 
-	helpers.SuccessResponse(rw, &job)
+	helpers.SuccessResponse(rw, r, &job)
 }

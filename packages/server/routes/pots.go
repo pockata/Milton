@@ -23,7 +23,7 @@ func AddPot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	name := r.PostForm.Get("Name")
 
 	if !helpers.CheckParams(name, unitID) {
-		helpers.ErrorResponse(rw, errors.New("Invalid request. Missing parameters"))
+		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
 		return
 	}
 
@@ -31,7 +31,7 @@ func AddPot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	find := db.Instance.First(&unit, unitID)
 
 	if find.Error != nil {
-		helpers.ErrorResponse(rw, find.Error)
+		helpers.ErrorResponse(rw, r, find.Error)
 		return
 	}
 
@@ -51,19 +51,19 @@ func GetPots(rw http.ResponseWriter, r *http.Request, db models.DB) {
 
 	unitID, err := strconv.Atoi(vars["UnitID"])
 	if err != nil {
-		helpers.ErrorResponse(rw, errors.New("Invalid unit ID"))
+		helpers.ErrorResponse(rw, r, errors.New("Invalid unit ID"))
 		return
 	}
 
 	findUnit := db.Instance.First(&unit, unitID)
 	if findUnit.Error != nil {
-		helpers.ErrorResponse(rw, errors.New("Non-existing unit ID"))
+		helpers.ErrorResponse(rw, r, errors.New("Non-existing unit ID"))
 		return
 	}
 
 	db.Instance.Model(&unit).Association("Pots").Find(&pots)
 
-	helpers.SuccessResponse(rw, pots)
+	helpers.SuccessResponse(rw, r, pots)
 }
 
 func UpdatePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
@@ -80,20 +80,20 @@ func UpdatePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	UnitIDStr := r.PostForm.Get("UnitID")
 
 	if !helpers.CheckParams(potID, name, UnitIDStr) {
-		helpers.ErrorResponse(rw, errors.New("Invalid parameters"))
+		helpers.ErrorResponse(rw, r, errors.New("Invalid parameters"))
 		return
 	}
 
 	UnitID, err := strconv.ParseUint(UnitIDStr, 10, 32)
 
 	if err != nil {
-		helpers.ErrorResponse(rw, err)
+		helpers.ErrorResponse(rw, r, err)
 		return
 	}
 
 	findPot := db.Instance.Find(&pot, potID)
 	if findPot.Error != nil {
-		helpers.ErrorResponse(rw, findPot.Error)
+		helpers.ErrorResponse(rw, r, findPot.Error)
 		return
 	}
 
@@ -102,5 +102,5 @@ func UpdatePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 		UnitID: uint(UnitID),
 	})
 
-	helpers.SuccessResponse(rw, &pot)
+	helpers.SuccessResponse(rw, r, &pot)
 }

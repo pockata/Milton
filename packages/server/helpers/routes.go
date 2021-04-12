@@ -37,11 +37,11 @@ func CreateEntry(
 	res := db.Create(entry)
 
 	if res.Error != nil {
-		ErrorResponse(rw, res.Error)
+		ErrorResponse(rw, r, res.Error)
 		return
 	}
 
-	SuccessResponse(rw, CreateEntryResponse{
+	SuccessResponse(rw, r, CreateEntryResponse{
 		Entry: &entry,
 	})
 }
@@ -61,16 +61,16 @@ func DeleteEntry(
 	ID := r.Form.Get("ID")
 
 	if !CheckParams(ID) {
-		ErrorResponse(rw, errors.New("Invalid request. Missing parameters"))
+		ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
 		return
 	}
 
 	res := db.Unscoped().Where("ID = ?", ID).Delete(entry)
 
 	if res.Error != nil {
-		ErrorResponse(rw, res.Error)
+		ErrorResponse(rw, r, res.Error)
 		return
 	}
 
-	SuccessResponse(rw, nil)
+	SuccessResponse(rw, r, nil)
 }

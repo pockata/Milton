@@ -13,7 +13,7 @@ func GetAllUnits(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	var units []models.Unit
 	db.Instance.Find(&units)
 
-	helpers.SuccessResponse(rw, units)
+	helpers.SuccessResponse(rw, r, units)
 }
 
 func PairUnit(rw http.ResponseWriter, r *http.Request, db models.DB) {
@@ -27,7 +27,7 @@ func PairUnit(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	name := r.PostForm.Get("Name")
 
 	if !helpers.CheckParams(mdns, name) {
-		helpers.ErrorResponse(rw, errors.New("Invalid request. Missing parameters"))
+		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
 		return
 	}
 
