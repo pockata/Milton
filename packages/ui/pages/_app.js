@@ -1,5 +1,5 @@
 import "normalize.css"
-import '../styles/globals.css'
+import '../styles/globals.scss'
 
 import { SWRConfig } from 'swr'
 
