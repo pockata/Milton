@@ -26,6 +26,8 @@ func main() {
 
 	api := router.PathPrefix("/api/").Subrouter()
 
+	api.Use(helpers.CORSHeaders(api, Config.CORS))
+
 	api.HandleFunc("/query-active-units", helpers.WrapHandler(db, routes.QueryActiveUnits)).Methods("GET")
 
 	// units

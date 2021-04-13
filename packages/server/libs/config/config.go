@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
+	"milton/helpers"
 	"milton/libs/mqtt"
 )
 
@@ -13,6 +14,8 @@ type Configuration struct {
 	} `json:"server"`
 
 	MQTT mqtt.MQTTConfig `json:"mqtt"`
+
+	CORS helpers.APIConfig `json:"CORS"`
 }
 
 func Read() Configuration {

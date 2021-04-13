@@ -4,7 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
+
+type APIConfig struct {
+	AccessControlAllowOrigin string `json:"Access-Control-Allow-Origin"`
+}
 
 type SuccessResponseType struct {
 	Error bool        `json:"error"`
@@ -51,4 +57,23 @@ func CheckParams(args ...string) bool {
 	}
 
 	return true
+}
+
+func CORSHeaders(api *mux.Router, config APIConfig) mux.MiddlewareFunc {
+	api.Use(mux.CORSMethodMiddleware(api))
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+			rw.Header().Set(
+				"Access-Control-Allow-Origin",
+				config.AccessControlAllowOrigin,
+			)
+
+			if r.Method == http.MethodOptions {
+				return
+			}
+
+			next.ServeHTTP(rw, r)
+		})
+	}
 }
