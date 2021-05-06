@@ -5,6 +5,7 @@ module.exports = {
         "node": true
     },
     "extends": [
+		// See https://github.com/gajus/eslint-plugin-jsdoc
         "eslint:recommended",
         "plugin:react/recommended",
         "plugin:@next/next/recommended"
@@ -21,6 +22,7 @@ module.exports = {
     ],
     "rules": {
         "react/prop-types": [2, { ignore: ['children'] }],
-        "react/react-in-jsx-scope": "off"
+        "react/react-in-jsx-scope": "off",
+		"semi": "error",
     }
 };
