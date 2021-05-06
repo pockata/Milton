@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"noEmit": true,
+		"jsx": "react",
+		"strict": true,
+		"noEmitOnError": true,
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": false,
+		"declaration": true,
+		"pretty": true,
+		"newLine": "lf",
+		"stripInternal": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"useDefineForClassFields": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true
+	},
+	"exclude": [
+		"node_modules"
+	]
+}
+
