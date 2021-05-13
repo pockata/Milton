@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "storybook": "start-storybook -p 6006 -s public",
+    "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
   "dependencies": {
@@ -27,10 +27,6 @@
     "@storybook/react": "^6.2.7",
     "babel-loader": "^8.2.2",
     "eslint": "^7.23.0",
-    "eslint-plugin-react": "^7.23.1",
-    "msw": "^0.28.1"
-  },
-  "msw": {
-    "workerDirectory": "public"
+    "eslint-plugin-react": "^7.23.1"
   }
 }
