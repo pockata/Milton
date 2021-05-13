@@ -1,0 +1,26 @@
+{
+  "name": "clearswrcache",
+  "version": "1.0.0",
+  "description": "Clear SWR cache on Story change",
+  "main": "dist/preset.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel ./src --out-dir ./dist"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "*.js"
+  ],
+  "keywords": [
+    "storybook",
+    "addons"
+  ],
+  "author": "pockata",
+  "license": "MIT",
+  "peerDependencies": {
+    "@babel/cli": "^7.13.16",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}
