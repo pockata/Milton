@@ -31,7 +31,7 @@ func main() {
 	api.HandleFunc("/query-active-units", helpers.WrapHandler(db, routes.QueryActiveUnits)).Methods("GET")
 
 	// units
-	api.HandleFunc("/get-all-units", helpers.WrapHandler(db, routes.GetAllUnits)).Methods("GET")
+	api.HandleFunc("/get-paired-units", helpers.WrapHandler(db, routes.GetPairedUnits)).Methods("GET")
 	api.HandleFunc("/pair-unit", helpers.WrapHandler(db, routes.PairUnit)).Methods("POST")
 	api.HandleFunc("/unpair-unit", helpers.WrapHandler(db, routes.UnpairUnit)).Methods("POST")
 

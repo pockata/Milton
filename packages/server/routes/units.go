@@ -9,7 +9,7 @@ import (
 	"milton/models"
 )
 
-func GetAllUnits(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func GetPairedUnits(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	var units []models.Unit
 	db.Instance.Find(&units)
 
