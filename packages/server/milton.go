@@ -28,25 +28,27 @@ func main() {
 
 	api.Use(helpers.CORSHeaders(api, Config.CORS))
 
-	api.HandleFunc("/query-active-units", helpers.WrapHandler(db, routes.QueryActiveUnits)).Methods("GET")
+	w := helpers.CreateAPIWrapHandler(db)
+
+	api.HandleFunc("/query-active-units", w(routes.QueryActiveUnits)).Methods("GET")
 
 	// units
-	api.HandleFunc("/get-paired-units", helpers.WrapHandler(db, routes.GetPairedUnits)).Methods("GET")
-	api.HandleFunc("/pair-unit", helpers.WrapHandler(db, routes.PairUnit)).Methods("POST")
-	api.HandleFunc("/unpair-unit", helpers.WrapHandler(db, routes.UnpairUnit)).Methods("POST")
+	api.HandleFunc("/get-paired-units", w(routes.GetPairedUnits)).Methods("GET")
+	api.HandleFunc("/pair-unit", w(routes.PairUnit)).Methods("POST")
+	api.HandleFunc("/unpair-unit", w(routes.UnpairUnit)).Methods("POST")
 
 	// pots
-	api.HandleFunc("/add-pot", helpers.WrapHandler(db, routes.AddPot)).Methods("POST")
-	api.HandleFunc("/get-pots/{UnitID}", helpers.WrapHandler(db, routes.GetPots)).Methods("GET")
-	api.HandleFunc("/update-pot", helpers.WrapHandler(db, routes.UpdatePot)).Methods("POST")
-	api.HandleFunc("/remove-pot", helpers.WrapHandler(db, routes.RemovePot)).Methods("POST")
+	api.HandleFunc("/add-pot", w(routes.AddPot)).Methods("POST")
+	api.HandleFunc("/get-pots/{UnitID}", w(routes.GetPots)).Methods("GET")
+	api.HandleFunc("/update-pot", w(routes.UpdatePot)).Methods("POST")
+	api.HandleFunc("/remove-pot", w(routes.RemovePot)).Methods("POST")
 
 	// watering jobs
-	api.HandleFunc("/add-job", helpers.WrapHandler(db, routes.AddJob)).Methods("POST")
-	api.HandleFunc("/remove-job", helpers.WrapHandler(db, routes.RemoveJob)).Methods("POST")
-	api.HandleFunc("/update-job", helpers.WrapHandler(db, routes.UpdateJob)).Methods("POST")
-	api.HandleFunc("/get-jobs", helpers.WrapHandler(db, routes.GetJobs)).Methods("GET")
-	api.HandleFunc("/get-job/{JobID}", helpers.WrapHandler(db, routes.GetJob)).Methods("GET")
+	api.HandleFunc("/add-job", w(routes.AddJob)).Methods("POST")
+	api.HandleFunc("/remove-job", w(routes.RemoveJob)).Methods("POST")
+	api.HandleFunc("/update-job", w(routes.UpdateJob)).Methods("POST")
+	api.HandleFunc("/get-jobs", w(routes.GetJobs)).Methods("GET")
+	api.HandleFunc("/get-job/{JobID}", w(routes.GetJob)).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(Config.Server.Address, router))
 }
