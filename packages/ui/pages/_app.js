@@ -26,7 +26,7 @@ function MyApp({ Component, pageProps }) {
 }
 
 MyApp.propTypes = {
-	Component: React.Component,
+	Component: PropTypes.func,
 	pageProps: PropTypes.object,
 };
 

@@ -62,7 +62,35 @@ input {
 }
 
 .u-contained {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1000px;
+	width: 100%;
+	min-width: 1000px;
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 15px 15px;
+	background: #f9ebd0;
 }
+
+body {
+	background: #ffc900;
+	color: #5F710f;
+}
+
+#flower-logo {
+	display: inline-block;
+	vertical-align: middle;
+	position: relative;
+	top: -5px;
+	left: -2px;
+	transform: scaleX(-1);
+}
+
+.container {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	overflow: hidden;
+	border-radius: 3px;
+}
+
