@@ -1,3 +1,5 @@
+// vim:ft=c
+
 // the name of the WIFI network
 #define WIFI_SSID "***"
 // the password of the WIFI network
@@ -18,4 +20,7 @@
 // mDNS details
 #define MDNS_NAME String("Milton-") + String(ESP.getChipId(), HEX)
 
+// MQTT
+#define MQTT_SERVER "test.mosquitto.org"
+#define MQTT_PORT (1883)
 
