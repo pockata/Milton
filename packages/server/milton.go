@@ -50,5 +50,10 @@ func main() {
 	api.HandleFunc("/get-jobs", w(routes.GetJobs)).Methods("GET")
 	api.HandleFunc("/get-job/{JobID}", w(routes.GetJob)).Methods("GET")
 
+	// TODO: Support PORT env variable
+	// httpPort := os.Getenv("PORT")
+	// 	if httpPort == "" {
+	// 		httpPort = "8080"
+	// 	}
 	log.Fatal(http.ListenAndServe(Config.Server.Address, router))
 }

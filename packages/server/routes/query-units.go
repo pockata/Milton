@@ -15,6 +15,7 @@ import (
 )
 
 type PumpController struct {
+	// TODO: Check if we need Host or Name (https://github.com/hashicorp/mdns/blob/master/client.go#L17)
 	Host string
 	IP   net.IP
 }
@@ -50,6 +51,7 @@ func QueryActiveUnits(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	}()
 
 	// Start the lookup
+	// TODO: Move lookup name to config
 	mdns.Lookup("_MILTON._tcp", entriesCh)
 	close(entriesCh)
 
