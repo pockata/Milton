@@ -10,26 +10,26 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@next/eslint-plugin-next": "^10.1.2",
+    "@next/eslint-plugin-next": "^12.1.0",
     "directory-named-webpack-plugin": "^4.0.1",
-    "next": "10.1.2",
+    "next": "12.1.0",
     "normalize.css": "^8.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "sass": "^1.32.8",
-    "swr": "^0.5.5"
+    "sass": "^1.49.9",
+    "swr": "^1.2.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.15",
-    "@storybook/addon-actions": "^6.2.7",
-    "@storybook/addon-essentials": "^6.2.7",
-    "@storybook/addon-links": "^6.2.7",
-    "@storybook/react": "^6.2.7",
-    "babel-loader": "^8.2.2",
-    "eslint": "^7.23.0",
-    "eslint-plugin-react": "^7.23.1",
-    "msw": "^0.28.2",
-    "msw-storybook-addon": "^1.1.0"
+    "@babel/core": "^7.17.5",
+    "@storybook/addon-actions": "^6.4.19",
+    "@storybook/addon-essentials": "^6.4.19",
+    "@storybook/addon-links": "^6.4.19",
+    "@storybook/react": "^6.4.19",
+    "babel-loader": "^8.2.3",
+    "eslint": "^8.10.0",
+    "eslint-plugin-react": "^7.29.3",
+    "msw": "^0.39.0",
+    "msw-storybook-addon": "^1.6.1"
   },
   "msw": {
     "workerDirectory": "public"
