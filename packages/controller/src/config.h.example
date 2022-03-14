@@ -1,0 +1,26 @@
+// vim:ft=c
+
+// the name of the WIFI network
+#define WIFI_SSID "***"
+// the password of the WIFI network
+#define WIFI_PASSPHRASE "***"
+
+// enable Over The Air (OTA) updates
+#define OTA_ENABLE true
+// the name used to identify the device when updating via OTA
+#define OTA_HOSTNAME "MILTON"
+// the password used to authenticate the OTA update
+//#define OTA_PASSWORD "***"
+// the port for the OTA update
+#define OTA_PORT 8266
+
+// enable debugging via Serial
+#define DEBUG_ENABLE true
+
+// mDNS details
+#define MDNS_NAME String("Milton-") + String(ESP.getChipId(), HEX)
+
+// MQTT
+#define MQTT_SERVER "test.mosquitto.org"
+#define MQTT_PORT (1883)
+
