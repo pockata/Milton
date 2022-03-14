@@ -1,0 +1,16 @@
+# sequence to ignore binary files (no extension)
+
+# ignore all
+*
+
+# unignore all with extensions
+!*.*
+
+# unignore all dirs
+!*/
+
+# the main config file
+config.json
+
+sqlite.db
+

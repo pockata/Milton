@@ -1,0 +1,149 @@
+package routes
+
+import (
+	"errors"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/gorilla/mux"
+
+	"milton/helpers"
+	"milton/models"
+)
+
+func AddJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Println("Error parsing form data", err)
+		return
+	}
+
+	unitID := r.PostForm.Get("UnitID")
+	potID := r.PostForm.Get("PotID")
+	startTimeStr := r.PostForm.Get("StartTime")
+	statusStr := r.PostForm.Get("Status")
+	waterQtyStr := r.PostForm.Get("WaterQty")
+
+	if !helpers.CheckParams(unitID, potID, waterQtyStr, startTimeStr, statusStr) {
+		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
+		return
+	}
+
+	startTimeInt, _ := strconv.ParseInt(startTimeStr, 10, 64)
+	startTime := time.Unix(startTimeInt, 0)
+	waterQty, _ := strconv.Atoi(waterQtyStr)
+	status, _ := strconv.Atoi(statusStr)
+
+	if startTime.Before(time.Now()) {
+		helpers.ErrorResponse(rw, r, errors.New("Start time should be in the future"))
+		return
+	}
+
+	var unit models.Unit
+	var pot models.Pot
+
+	findUnit := db.Instance.First(&unit, unitID)
+	if findUnit.Error != nil {
+		helpers.ErrorResponse(rw, r, findUnit.Error)
+		return
+	}
+
+	findPot := db.Instance.First(&pot, potID)
+	if findPot.Error != nil {
+		helpers.ErrorResponse(rw, r, findPot.Error)
+		return
+	}
+
+	entry := &models.Job{
+		Unit:      unit,
+		Pot:       pot,
+		WaterQty:  waterQty,
+		StartTime: startTime,
+		Status:    status,
+	}
+
+	helpers.CreateEntry(rw, r, *db.Instance, &entry)
+}
+
+func RemoveJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
+	helpers.DeleteEntry(rw, r, *db.Instance, &models.Job{})
+}
+
+func GetJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
+	var job models.Job
+
+	vars := mux.Vars(r)
+
+	jobID, err := strconv.Atoi(vars["JobID"])
+	if err != nil {
+		helpers.ErrorResponse(rw, r, errors.New("Invalid job ID"))
+		return
+	}
+
+	findJob := db.Instance.Preload("Unit").Preload("Pot").First(&job, jobID)
+	if findJob.Error != nil {
+		helpers.ErrorResponse(rw, r, errors.New("Non-existing job ID"))
+		return
+	}
+
+	helpers.SuccessResponse(rw, r, job)
+}
+
+func GetJobs(rw http.ResponseWriter, r *http.Request, db models.DB) {
+	var jobs []models.Job
+
+	getJobs := db.Instance.Preload("Unit").Preload("Pot").Find(&jobs)
+
+	if getJobs.Error != nil {
+		helpers.ErrorResponse(rw, r, getJobs.Error)
+		return
+	}
+
+	helpers.SuccessResponse(rw, r, jobs)
+}
+
+func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
+	var job models.Job
+
+	err := r.ParseForm()
+	if err != nil {
+		log.Println("Error parsing form data", err)
+		return
+	}
+
+	jobID := r.PostForm.Get("JobID")
+	startTimeStr := r.PostForm.Get("StartTime")
+	statusStr := r.PostForm.Get("Status")
+	waterQtyStr := r.PostForm.Get("WaterQty")
+
+	if !helpers.CheckParams(jobID, waterQtyStr, startTimeStr, statusStr) {
+		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
+		return
+	}
+
+	startTimeInt, _ := strconv.ParseInt(startTimeStr, 10, 64)
+	startTime := time.Unix(startTimeInt, 0)
+	waterQty, _ := strconv.Atoi(waterQtyStr)
+	status, _ := strconv.Atoi(statusStr)
+
+	if startTime.Before(time.Now()) {
+		helpers.ErrorResponse(rw, r, errors.New("Start time should be in the future"))
+		return
+	}
+
+	findJob := db.Instance.First(&job, jobID)
+	if findJob.Error != nil {
+		helpers.ErrorResponse(rw, r, findJob.Error)
+		return
+	}
+
+	db.Instance.Model(&job).Updates(models.Job{
+		WaterQty:  waterQty,
+		StartTime: startTime,
+		Status:    status,
+	})
+
+	helpers.SuccessResponse(rw, r, &job)
+}
