@@ -1,0 +1,10 @@
+output   = "generated_models"
+wipe     = true
+no-tests = true
+add-enum-types = false
+no-hooks = true
+
+[auto-columns]
+created = "createdAt"
+updated = "updatedAt"
+

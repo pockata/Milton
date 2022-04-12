@@ -13,4 +13,4 @@
 config.json
 
 sqlite.db
-
+sqlite.db-journal

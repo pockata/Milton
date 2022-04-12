@@ -1,0 +1,44 @@
+-- CreateTable
+CREATE TABLE "Unit" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "name" TEXT NOT NULL,
+    "mdns" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Pot" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "name" TEXT NOT NULL,
+    "unit_id" TEXT NOT NULL,
+    CONSTRAINT "Pot_unit_id_fkey" FOREIGN KEY ("unit_id") REFERENCES "Unit" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Job" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "unit_id" TEXT NOT NULL,
+    "pot_id" TEXT NOT NULL,
+    "WaterQty" INTEGER NOT NULL,
+    "StartTime" DATETIME NOT NULL,
+    "Status" INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT "Job_unit_id_fkey" FOREIGN KEY ("unit_id") REFERENCES "Unit" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Job_pot_id_fkey" FOREIGN KEY ("pot_id") REFERENCES "Pot" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Log" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "unit_id" TEXT NOT NULL,
+    "job_id" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    CONSTRAINT "Log_unit_id_fkey" FOREIGN KEY ("unit_id") REFERENCES "Unit" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Log_job_id_fkey" FOREIGN KEY ("job_id") REFERENCES "Job" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);

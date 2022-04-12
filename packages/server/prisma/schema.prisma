@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../sqlite.db"
+}
+
+model Unit {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String
+  mdns String
+
+  Pots Pot[]
+  Jobs Job[]
+  Logs Log[]
+}
+
+model Pot {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String
+
+  unit_id String
+  unit    Unit   @relation(fields: [unit_id], references: [id])
+
+  Jobs Job[]
+}
+
+model Job {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unit_id String
+  unit    Unit   @relation(fields: [unit_id], references: [id])
+
+  pot_id String
+  pot    Pot    @relation(fields: [pot_id], references: [id])
+
+  WaterQty  Int
+  StartTime DateTime
+  // sqlite doesn't support enums
+  // enum Status {
+  // 	Pending = 0
+  // 	Running = 1
+  // 	Complete = 2
+  // 	Error = 3
+  // }
+  Status    Int      @default(0)
+  Logs      Log[]
+}
+
+model Log {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unit_id String
+  unit    Unit   @relation(fields: [unit_id], references: [id])
+
+  job_id String
+  job    Job    @relation(fields: [job_id], references: [id])
+
+  message String
+}
