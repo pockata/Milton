@@ -10,9 +10,10 @@ import (
 	"milton/models"
 )
 
-// TODO: Refactor this beauty
-func CreateAPIWrapHandler(db models.DB) func(func(http.ResponseWriter, *http.Request, models.DB)) func(http.ResponseWriter, *http.Request) {
-	return func(handler func(http.ResponseWriter, *http.Request, models.DB)) func(http.ResponseWriter, *http.Request) {
+type APIWrapperFunc func(http.ResponseWriter, *http.Request, models.DB)
+
+func CreateAPIWrapHandler(db models.DB) func(APIWrapperFunc) http.HandlerFunc {
+	return func(handler APIWrapperFunc) http.HandlerFunc {
 		return func(rw http.ResponseWriter, r *http.Request) {
 			handler(rw, r, db)
 		}
