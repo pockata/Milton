@@ -8,6 +8,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/mdns v1.0.3
 	github.com/jinzhu/now v1.1.2 // indirect
+	github.com/lucsky/cuid v1.2.1
 	github.com/miekg/dns v1.1.40 // indirect
 	github.com/volatiletech/sqlboiler/v4 v4.9.2
 	github.com/volatiletech/strmangle v0.0.2
