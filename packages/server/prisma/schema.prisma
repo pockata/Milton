@@ -14,12 +14,12 @@ model Unit {
   name String
   mdns String
 
-  Pots Pot[]
+  Pots FlowerPot[]
   Jobs Job[]
   Logs Log[]
 }
 
-model Pot {
+model FlowerPot {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -40,8 +40,8 @@ model Job {
   unit_id String
   unit    Unit   @relation(fields: [unit_id], references: [id])
 
-  pot_id String
-  pot    Pot    @relation(fields: [pot_id], references: [id])
+  flower_pot_id String
+  flower_pot    FlowerPot @relation(fields: [flower_pot_id], references: [id])
 
   WaterQty  Int
   StartTime DateTime

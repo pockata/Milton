@@ -4,13 +4,15 @@
 package models
 
 var TableNames = struct {
-	Job  string
-	Log  string
-	Pot  string
-	Unit string
+	FlowerPot        string
+	Job              string
+	Log              string
+	Unit             string
+	PrismaMigrations string
 }{
-	Job:  "Job",
-	Log:  "Log",
-	Pot:  "Pot",
-	Unit: "Unit",
+	FlowerPot:        "FlowerPot",
+	Job:              "Job",
+	Log:              "Log",
+	Unit:             "Unit",
+	PrismaMigrations: "_prisma_migrations",
 }

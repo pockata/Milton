@@ -21,19 +21,19 @@ import (
 	"github.com/volatiletech/strmangle"
 )
 
-// Pot is an object representing the database table.
-type Pot struct {
+// FlowerPot is an object representing the database table.
+type FlowerPot struct {
 	ID        string    `boil:"id" json:"id" toml:"id" yaml:"id"`
 	CreatedAt time.Time `boil:"createdAt" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
 	UpdatedAt time.Time `boil:"updatedAt" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
 	Name      string    `boil:"name" json:"name" toml:"name" yaml:"name"`
 	UnitID    string    `boil:"unit_id" json:"unit_id" toml:"unit_id" yaml:"unit_id"`
 
-	R *potR `boil:"-" json:"-" toml:"-" yaml:"-"`
-	L potL  `boil:"-" json:"-" toml:"-" yaml:"-"`
+	R *flowerPotR `boil:"-" json:"-" toml:"-" yaml:"-"`
+	L flowerPotL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
-var PotColumns = struct {
+var FlowerPotColumns = struct {
 	ID        string
 	CreatedAt string
 	UpdatedAt string
@@ -47,88 +47,132 @@ var PotColumns = struct {
 	UnitID:    "unit_id",
 }
 
-var PotTableColumns = struct {
+var FlowerPotTableColumns = struct {
 	ID        string
 	CreatedAt string
 	UpdatedAt string
 	Name      string
 	UnitID    string
 }{
-	ID:        "Pot.id",
-	CreatedAt: "Pot.createdAt",
-	UpdatedAt: "Pot.updatedAt",
-	Name:      "Pot.name",
-	UnitID:    "Pot.unit_id",
+	ID:        "FlowerPot.id",
+	CreatedAt: "FlowerPot.createdAt",
+	UpdatedAt: "FlowerPot.updatedAt",
+	Name:      "FlowerPot.name",
+	UnitID:    "FlowerPot.unit_id",
 }
 
 // Generated where
 
-var PotWhere = struct {
+type whereHelperstring struct{ field string }
+
+func (w whereHelperstring) EQ(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperstring) NEQ(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperstring) LT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperstring) LTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperstring) GT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperstring) GTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperstring) IN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+type whereHelpertime_Time struct{ field string }
+
+func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+var FlowerPotWhere = struct {
 	ID        whereHelperstring
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
 	Name      whereHelperstring
 	UnitID    whereHelperstring
 }{
-	ID:        whereHelperstring{field: "\"Pot\".\"id\""},
-	CreatedAt: whereHelpertime_Time{field: "\"Pot\".\"createdAt\""},
-	UpdatedAt: whereHelpertime_Time{field: "\"Pot\".\"updatedAt\""},
-	Name:      whereHelperstring{field: "\"Pot\".\"name\""},
-	UnitID:    whereHelperstring{field: "\"Pot\".\"unit_id\""},
+	ID:        whereHelperstring{field: "\"FlowerPot\".\"id\""},
+	CreatedAt: whereHelpertime_Time{field: "\"FlowerPot\".\"createdAt\""},
+	UpdatedAt: whereHelpertime_Time{field: "\"FlowerPot\".\"updatedAt\""},
+	Name:      whereHelperstring{field: "\"FlowerPot\".\"name\""},
+	UnitID:    whereHelperstring{field: "\"FlowerPot\".\"unit_id\""},
 }
 
-// PotRels is where relationship names are stored.
-var PotRels = struct {
-	Unit    string
-	PotJobs string
+// FlowerPotRels is where relationship names are stored.
+var FlowerPotRels = struct {
+	Unit          string
+	FlowerPotJobs string
 }{
-	Unit:    "Unit",
-	PotJobs: "PotJobs",
+	Unit:          "Unit",
+	FlowerPotJobs: "FlowerPotJobs",
 }
 
-// potR is where relationships are stored.
-type potR struct {
-	Unit    *Unit    `boil:"Unit" json:"Unit" toml:"Unit" yaml:"Unit"`
-	PotJobs JobSlice `boil:"PotJobs" json:"PotJobs" toml:"PotJobs" yaml:"PotJobs"`
+// flowerPotR is where relationships are stored.
+type flowerPotR struct {
+	Unit          *Unit    `boil:"Unit" json:"Unit" toml:"Unit" yaml:"Unit"`
+	FlowerPotJobs JobSlice `boil:"FlowerPotJobs" json:"FlowerPotJobs" toml:"FlowerPotJobs" yaml:"FlowerPotJobs"`
 }
 
 // NewStruct creates a new relationship struct
-func (*potR) NewStruct() *potR {
-	return &potR{}
+func (*flowerPotR) NewStruct() *flowerPotR {
+	return &flowerPotR{}
 }
 
-// potL is where Load methods for each relationship are stored.
-type potL struct{}
+// flowerPotL is where Load methods for each relationship are stored.
+type flowerPotL struct{}
 
 var (
-	potAllColumns            = []string{"id", "createdAt", "updatedAt", "name", "unit_id"}
-	potColumnsWithoutDefault = []string{"id", "updatedAt", "name", "unit_id"}
-	potColumnsWithDefault    = []string{"createdAt"}
-	potPrimaryKeyColumns     = []string{"id"}
-	potGeneratedColumns      = []string{}
+	flowerPotAllColumns            = []string{"id", "createdAt", "updatedAt", "name", "unit_id"}
+	flowerPotColumnsWithoutDefault = []string{"id", "updatedAt", "name", "unit_id"}
+	flowerPotColumnsWithDefault    = []string{"createdAt"}
+	flowerPotPrimaryKeyColumns     = []string{"id"}
+	flowerPotGeneratedColumns      = []string{}
 )
 
 type (
-	// PotSlice is an alias for a slice of pointers to Pot.
-	// This should almost always be used instead of []Pot.
-	PotSlice []*Pot
+	// FlowerPotSlice is an alias for a slice of pointers to FlowerPot.
+	// This should almost always be used instead of []FlowerPot.
+	FlowerPotSlice []*FlowerPot
 
-	potQuery struct {
+	flowerPotQuery struct {
 		*queries.Query
 	}
 )
 
 // Cache for insert, update and upsert
 var (
-	potType                 = reflect.TypeOf(&Pot{})
-	potMapping              = queries.MakeStructMapping(potType)
-	potPrimaryKeyMapping, _ = queries.BindMapping(potType, potMapping, potPrimaryKeyColumns)
-	potInsertCacheMut       sync.RWMutex
-	potInsertCache          = make(map[string]insertCache)
-	potUpdateCacheMut       sync.RWMutex
-	potUpdateCache          = make(map[string]updateCache)
-	potUpsertCacheMut       sync.RWMutex
-	potUpsertCache          = make(map[string]insertCache)
+	flowerPotType                 = reflect.TypeOf(&FlowerPot{})
+	flowerPotMapping              = queries.MakeStructMapping(flowerPotType)
+	flowerPotPrimaryKeyMapping, _ = queries.BindMapping(flowerPotType, flowerPotMapping, flowerPotPrimaryKeyColumns)
+	flowerPotInsertCacheMut       sync.RWMutex
+	flowerPotInsertCache          = make(map[string]insertCache)
+	flowerPotUpdateCacheMut       sync.RWMutex
+	flowerPotUpdateCache          = make(map[string]updateCache)
+	flowerPotUpsertCacheMut       sync.RWMutex
+	flowerPotUpsertCache          = make(map[string]insertCache)
 )
 
 var (
@@ -139,9 +183,9 @@ var (
 	_ = qmhelper.Where
 )
 
-// One returns a single pot record from the query.
-func (q potQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Pot, error) {
-	o := &Pot{}
+// One returns a single flowerPot record from the query.
+func (q flowerPotQuery) One(ctx context.Context, exec boil.ContextExecutor) (*FlowerPot, error) {
+	o := &FlowerPot{}
 
 	queries.SetLimit(q.Query, 1)
 
@@ -150,26 +194,26 @@ func (q potQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Pot, err
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: failed to execute a one query for Pot")
+		return nil, errors.Wrap(err, "models: failed to execute a one query for FlowerPot")
 	}
 
 	return o, nil
 }
 
-// All returns all Pot records from the query.
-func (q potQuery) All(ctx context.Context, exec boil.ContextExecutor) (PotSlice, error) {
-	var o []*Pot
+// All returns all FlowerPot records from the query.
+func (q flowerPotQuery) All(ctx context.Context, exec boil.ContextExecutor) (FlowerPotSlice, error) {
+	var o []*FlowerPot
 
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
-		return nil, errors.Wrap(err, "models: failed to assign all query results to Pot slice")
+		return nil, errors.Wrap(err, "models: failed to assign all query results to FlowerPot slice")
 	}
 
 	return o, nil
 }
 
-// Count returns the count of all Pot records in the query.
-func (q potQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+// Count returns the count of all FlowerPot records in the query.
+func (q flowerPotQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -177,14 +221,14 @@ func (q potQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, 
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to count Pot rows")
+		return 0, errors.Wrap(err, "models: failed to count FlowerPot rows")
 	}
 
 	return count, nil
 }
 
 // Exists checks if the row exists in the table.
-func (q potQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
+func (q flowerPotQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -193,14 +237,14 @@ func (q potQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, 
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "models: failed to check if Pot exists")
+		return false, errors.Wrap(err, "models: failed to check if FlowerPot exists")
 	}
 
 	return count > 0, nil
 }
 
 // Unit pointed to by the foreign key.
-func (o *Pot) Unit(mods ...qm.QueryMod) unitQuery {
+func (o *FlowerPot) Unit(mods ...qm.QueryMod) unitQuery {
 	queryMods := []qm.QueryMod{
 		qm.Where("\"id\" = ?", o.UnitID),
 	}
@@ -213,15 +257,15 @@ func (o *Pot) Unit(mods ...qm.QueryMod) unitQuery {
 	return query
 }
 
-// PotJobs retrieves all the Job's Jobs with an executor via pot_id column.
-func (o *Pot) PotJobs(mods ...qm.QueryMod) jobQuery {
+// FlowerPotJobs retrieves all the Job's Jobs with an executor via flower_pot_id column.
+func (o *FlowerPot) FlowerPotJobs(mods ...qm.QueryMod) jobQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"Job\".\"pot_id\"=?", o.ID),
+		qm.Where("\"Job\".\"flower_pot_id\"=?", o.ID),
 	)
 
 	query := Jobs(queryMods...)
@@ -236,20 +280,20 @@ func (o *Pot) PotJobs(mods ...qm.QueryMod) jobQuery {
 
 // LoadUnit allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
-func (potL) LoadUnit(ctx context.Context, e boil.ContextExecutor, singular bool, maybePot interface{}, mods queries.Applicator) error {
-	var slice []*Pot
-	var object *Pot
+func (flowerPotL) LoadUnit(ctx context.Context, e boil.ContextExecutor, singular bool, maybeFlowerPot interface{}, mods queries.Applicator) error {
+	var slice []*FlowerPot
+	var object *FlowerPot
 
 	if singular {
-		object = maybePot.(*Pot)
+		object = maybeFlowerPot.(*FlowerPot)
 	} else {
-		slice = *maybePot.(*[]*Pot)
+		slice = *maybeFlowerPot.(*[]*FlowerPot)
 	}
 
 	args := make([]interface{}, 0, 1)
 	if singular {
 		if object.R == nil {
-			object.R = &potR{}
+			object.R = &flowerPotR{}
 		}
 		args = append(args, object.UnitID)
 
@@ -257,7 +301,7 @@ func (potL) LoadUnit(ctx context.Context, e boil.ContextExecutor, singular bool,
 	Outer:
 		for _, obj := range slice {
 			if obj.R == nil {
-				obj.R = &potR{}
+				obj.R = &flowerPotR{}
 			}
 
 			for _, a := range args {
@@ -310,7 +354,7 @@ func (potL) LoadUnit(ctx context.Context, e boil.ContextExecutor, singular bool,
 		if foreign.R == nil {
 			foreign.R = &unitR{}
 		}
-		foreign.R.UnitPots = append(foreign.R.UnitPots, object)
+		foreign.R.UnitFlowerPots = append(foreign.R.UnitFlowerPots, object)
 		return nil
 	}
 
@@ -321,7 +365,7 @@ func (potL) LoadUnit(ctx context.Context, e boil.ContextExecutor, singular bool,
 				if foreign.R == nil {
 					foreign.R = &unitR{}
 				}
-				foreign.R.UnitPots = append(foreign.R.UnitPots, local)
+				foreign.R.UnitFlowerPots = append(foreign.R.UnitFlowerPots, local)
 				break
 			}
 		}
@@ -330,29 +374,29 @@ func (potL) LoadUnit(ctx context.Context, e boil.ContextExecutor, singular bool,
 	return nil
 }
 
-// LoadPotJobs allows an eager lookup of values, cached into the
+// LoadFlowerPotJobs allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (potL) LoadPotJobs(ctx context.Context, e boil.ContextExecutor, singular bool, maybePot interface{}, mods queries.Applicator) error {
-	var slice []*Pot
-	var object *Pot
+func (flowerPotL) LoadFlowerPotJobs(ctx context.Context, e boil.ContextExecutor, singular bool, maybeFlowerPot interface{}, mods queries.Applicator) error {
+	var slice []*FlowerPot
+	var object *FlowerPot
 
 	if singular {
-		object = maybePot.(*Pot)
+		object = maybeFlowerPot.(*FlowerPot)
 	} else {
-		slice = *maybePot.(*[]*Pot)
+		slice = *maybeFlowerPot.(*[]*FlowerPot)
 	}
 
 	args := make([]interface{}, 0, 1)
 	if singular {
 		if object.R == nil {
-			object.R = &potR{}
+			object.R = &flowerPotR{}
 		}
 		args = append(args, object.ID)
 	} else {
 	Outer:
 		for _, obj := range slice {
 			if obj.R == nil {
-				obj.R = &potR{}
+				obj.R = &flowerPotR{}
 			}
 
 			for _, a := range args {
@@ -371,7 +415,7 @@ func (potL) LoadPotJobs(ctx context.Context, e boil.ContextExecutor, singular bo
 
 	query := NewQuery(
 		qm.From(`Job`),
-		qm.WhereIn(`Job.pot_id in ?`, args...),
+		qm.WhereIn(`Job.flower_pot_id in ?`, args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -395,24 +439,24 @@ func (potL) LoadPotJobs(ctx context.Context, e boil.ContextExecutor, singular bo
 	}
 
 	if singular {
-		object.R.PotJobs = resultSlice
+		object.R.FlowerPotJobs = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
 				foreign.R = &jobR{}
 			}
-			foreign.R.Pot = object
+			foreign.R.FlowerPot = object
 		}
 		return nil
 	}
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if local.ID == foreign.PotID {
-				local.R.PotJobs = append(local.R.PotJobs, foreign)
+			if local.ID == foreign.FlowerPotID {
+				local.R.FlowerPotJobs = append(local.R.FlowerPotJobs, foreign)
 				if foreign.R == nil {
 					foreign.R = &jobR{}
 				}
-				foreign.R.Pot = local
+				foreign.R.FlowerPot = local
 				break
 			}
 		}
@@ -421,10 +465,10 @@ func (potL) LoadPotJobs(ctx context.Context, e boil.ContextExecutor, singular bo
 	return nil
 }
 
-// SetUnit of the pot to the related item.
+// SetUnit of the flowerPot to the related item.
 // Sets o.R.Unit to related.
-// Adds o to related.R.UnitPots.
-func (o *Pot) SetUnit(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Unit) error {
+// Adds o to related.R.UnitFlowerPots.
+func (o *FlowerPot) SetUnit(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Unit) error {
 	var err error
 	if insert {
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -433,9 +477,9 @@ func (o *Pot) SetUnit(ctx context.Context, exec boil.ContextExecutor, insert boo
 	}
 
 	updateQuery := fmt.Sprintf(
-		"UPDATE \"Pot\" SET %s WHERE %s",
+		"UPDATE \"FlowerPot\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 0, []string{"unit_id"}),
-		strmangle.WhereClause("\"", "\"", 0, potPrimaryKeyColumns),
+		strmangle.WhereClause("\"", "\"", 0, flowerPotPrimaryKeyColumns),
 	)
 	values := []interface{}{related.ID, o.ID}
 
@@ -450,7 +494,7 @@ func (o *Pot) SetUnit(ctx context.Context, exec boil.ContextExecutor, insert boo
 
 	o.UnitID = related.ID
 	if o.R == nil {
-		o.R = &potR{
+		o.R = &flowerPotR{
 			Unit: related,
 		}
 	} else {
@@ -459,31 +503,31 @@ func (o *Pot) SetUnit(ctx context.Context, exec boil.ContextExecutor, insert boo
 
 	if related.R == nil {
 		related.R = &unitR{
-			UnitPots: PotSlice{o},
+			UnitFlowerPots: FlowerPotSlice{o},
 		}
 	} else {
-		related.R.UnitPots = append(related.R.UnitPots, o)
+		related.R.UnitFlowerPots = append(related.R.UnitFlowerPots, o)
 	}
 
 	return nil
 }
 
-// AddPotJobs adds the given related objects to the existing relationships
-// of the Pot, optionally inserting them as new records.
-// Appends related to o.R.PotJobs.
-// Sets related.R.Pot appropriately.
-func (o *Pot) AddPotJobs(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Job) error {
+// AddFlowerPotJobs adds the given related objects to the existing relationships
+// of the FlowerPot, optionally inserting them as new records.
+// Appends related to o.R.FlowerPotJobs.
+// Sets related.R.FlowerPot appropriately.
+func (o *FlowerPot) AddFlowerPotJobs(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Job) error {
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.PotID = o.ID
+			rel.FlowerPotID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
 				"UPDATE \"Job\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 0, []string{"pot_id"}),
+				strmangle.SetParamNames("\"", "\"", 0, []string{"flower_pot_id"}),
 				strmangle.WhereClause("\"", "\"", 0, jobPrimaryKeyColumns),
 			)
 			values := []interface{}{o.ID, rel.ID}
@@ -497,67 +541,67 @@ func (o *Pot) AddPotJobs(ctx context.Context, exec boil.ContextExecutor, insert 
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			rel.PotID = o.ID
+			rel.FlowerPotID = o.ID
 		}
 	}
 
 	if o.R == nil {
-		o.R = &potR{
-			PotJobs: related,
+		o.R = &flowerPotR{
+			FlowerPotJobs: related,
 		}
 	} else {
-		o.R.PotJobs = append(o.R.PotJobs, related...)
+		o.R.FlowerPotJobs = append(o.R.FlowerPotJobs, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &jobR{
-				Pot: o,
+				FlowerPot: o,
 			}
 		} else {
-			rel.R.Pot = o
+			rel.R.FlowerPot = o
 		}
 	}
 	return nil
 }
 
-// Pots retrieves all the records using an executor.
-func Pots(mods ...qm.QueryMod) potQuery {
-	mods = append(mods, qm.From("\"Pot\""))
-	return potQuery{NewQuery(mods...)}
+// FlowerPots retrieves all the records using an executor.
+func FlowerPots(mods ...qm.QueryMod) flowerPotQuery {
+	mods = append(mods, qm.From("\"FlowerPot\""))
+	return flowerPotQuery{NewQuery(mods...)}
 }
 
-// FindPot retrieves a single record by ID with an executor.
+// FindFlowerPot retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindPot(ctx context.Context, exec boil.ContextExecutor, iD string, selectCols ...string) (*Pot, error) {
-	potObj := &Pot{}
+func FindFlowerPot(ctx context.Context, exec boil.ContextExecutor, iD string, selectCols ...string) (*FlowerPot, error) {
+	flowerPotObj := &FlowerPot{}
 
 	sel := "*"
 	if len(selectCols) > 0 {
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"Pot\" where \"id\"=?", sel,
+		"select %s from \"FlowerPot\" where \"id\"=?", sel,
 	)
 
 	q := queries.Raw(query, iD)
 
-	err := q.Bind(ctx, exec, potObj)
+	err := q.Bind(ctx, exec, flowerPotObj)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: unable to select from Pot")
+		return nil, errors.Wrap(err, "models: unable to select from FlowerPot")
 	}
 
-	return potObj, nil
+	return flowerPotObj, nil
 }
 
 // Insert a single record using an executor.
 // See boil.Columns.InsertColumnSet documentation to understand column list inference for inserts.
-func (o *Pot) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
+func (o *FlowerPot) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no Pot provided for insertion")
+		return errors.New("models: no FlowerPot provided for insertion")
 	}
 
 	var err error
@@ -572,33 +616,33 @@ func (o *Pot) Insert(ctx context.Context, exec boil.ContextExecutor, columns boi
 		}
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(potColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(flowerPotColumnsWithDefault, o)
 
 	key := makeCacheKey(columns, nzDefaults)
-	potInsertCacheMut.RLock()
-	cache, cached := potInsertCache[key]
-	potInsertCacheMut.RUnlock()
+	flowerPotInsertCacheMut.RLock()
+	cache, cached := flowerPotInsertCache[key]
+	flowerPotInsertCacheMut.RUnlock()
 
 	if !cached {
 		wl, returnColumns := columns.InsertColumnSet(
-			potAllColumns,
-			potColumnsWithDefault,
-			potColumnsWithoutDefault,
+			flowerPotAllColumns,
+			flowerPotColumnsWithDefault,
+			flowerPotColumnsWithoutDefault,
 			nzDefaults,
 		)
 
-		cache.valueMapping, err = queries.BindMapping(potType, potMapping, wl)
+		cache.valueMapping, err = queries.BindMapping(flowerPotType, flowerPotMapping, wl)
 		if err != nil {
 			return err
 		}
-		cache.retMapping, err = queries.BindMapping(potType, potMapping, returnColumns)
+		cache.retMapping, err = queries.BindMapping(flowerPotType, flowerPotMapping, returnColumns)
 		if err != nil {
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"Pot\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"FlowerPot\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"Pot\" %sDEFAULT VALUES%s"
+			cache.query = "INSERT INTO \"FlowerPot\" %sDEFAULT VALUES%s"
 		}
 
 		var queryOutput, queryReturning string
@@ -626,22 +670,22 @@ func (o *Pot) Insert(ctx context.Context, exec boil.ContextExecutor, columns boi
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "models: unable to insert into Pot")
+		return errors.Wrap(err, "models: unable to insert into FlowerPot")
 	}
 
 	if !cached {
-		potInsertCacheMut.Lock()
-		potInsertCache[key] = cache
-		potInsertCacheMut.Unlock()
+		flowerPotInsertCacheMut.Lock()
+		flowerPotInsertCache[key] = cache
+		flowerPotInsertCacheMut.Unlock()
 	}
 
 	return nil
 }
 
-// Update uses an executor to update the Pot.
+// Update uses an executor to update the FlowerPot.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
-func (o *Pot) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+func (o *FlowerPot) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
@@ -650,28 +694,28 @@ func (o *Pot) Update(ctx context.Context, exec boil.ContextExecutor, columns boi
 
 	var err error
 	key := makeCacheKey(columns, nil)
-	potUpdateCacheMut.RLock()
-	cache, cached := potUpdateCache[key]
-	potUpdateCacheMut.RUnlock()
+	flowerPotUpdateCacheMut.RLock()
+	cache, cached := flowerPotUpdateCache[key]
+	flowerPotUpdateCacheMut.RUnlock()
 
 	if !cached {
 		wl := columns.UpdateColumnSet(
-			potAllColumns,
-			potPrimaryKeyColumns,
+			flowerPotAllColumns,
+			flowerPotPrimaryKeyColumns,
 		)
 
 		if !columns.IsWhitelist() {
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return 0, errors.New("models: unable to update Pot, could not build whitelist")
+			return 0, errors.New("models: unable to update FlowerPot, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"Pot\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"FlowerPot\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 0, wl),
-			strmangle.WhereClause("\"", "\"", 0, potPrimaryKeyColumns),
+			strmangle.WhereClause("\"", "\"", 0, flowerPotPrimaryKeyColumns),
 		)
-		cache.valueMapping, err = queries.BindMapping(potType, potMapping, append(wl, potPrimaryKeyColumns...))
+		cache.valueMapping, err = queries.BindMapping(flowerPotType, flowerPotMapping, append(wl, flowerPotPrimaryKeyColumns...))
 		if err != nil {
 			return 0, err
 		}
@@ -687,42 +731,42 @@ func (o *Pot) Update(ctx context.Context, exec boil.ContextExecutor, columns boi
 	var result sql.Result
 	result, err = exec.ExecContext(ctx, cache.query, values...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update Pot row")
+		return 0, errors.Wrap(err, "models: unable to update FlowerPot row")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by update for Pot")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by update for FlowerPot")
 	}
 
 	if !cached {
-		potUpdateCacheMut.Lock()
-		potUpdateCache[key] = cache
-		potUpdateCacheMut.Unlock()
+		flowerPotUpdateCacheMut.Lock()
+		flowerPotUpdateCache[key] = cache
+		flowerPotUpdateCacheMut.Unlock()
 	}
 
 	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
-func (q potQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (q flowerPotQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all for Pot")
+		return 0, errors.Wrap(err, "models: unable to update all for FlowerPot")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for Pot")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for FlowerPot")
 	}
 
 	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
-func (o PotSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (o FlowerPotSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	ln := int64(len(o))
 	if ln == 0 {
 		return 0, nil
@@ -744,13 +788,13 @@ func (o PotSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols
 
 	// Append all of the primary key values for each column
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), potPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), flowerPotPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := fmt.Sprintf("UPDATE \"Pot\" SET %s WHERE %s",
+	sql := fmt.Sprintf("UPDATE \"FlowerPot\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 0, colNames),
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 0, potPrimaryKeyColumns, len(o)))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 0, flowerPotPrimaryKeyColumns, len(o)))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -759,21 +803,21 @@ func (o PotSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all in pot slice")
+		return 0, errors.Wrap(err, "models: unable to update all in flowerPot slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all pot")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all flowerPot")
 	}
 	return rowsAff, nil
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
-func (o *Pot) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+func (o *FlowerPot) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no Pot provided for upsert")
+		return errors.New("models: no FlowerPot provided for upsert")
 	}
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
@@ -784,7 +828,7 @@ func (o *Pot) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCon
 		o.UpdatedAt = currTime
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(potColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(flowerPotColumnsWithDefault, o)
 
 	// Build cache key in-line uglily - mysql vs psql problems
 	buf := strmangle.GetBuffer()
@@ -814,41 +858,41 @@ func (o *Pot) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCon
 	key := buf.String()
 	strmangle.PutBuffer(buf)
 
-	potUpsertCacheMut.RLock()
-	cache, cached := potUpsertCache[key]
-	potUpsertCacheMut.RUnlock()
+	flowerPotUpsertCacheMut.RLock()
+	cache, cached := flowerPotUpsertCache[key]
+	flowerPotUpsertCacheMut.RUnlock()
 
 	var err error
 
 	if !cached {
 		insert, ret := insertColumns.InsertColumnSet(
-			potAllColumns,
-			potColumnsWithDefault,
-			potColumnsWithoutDefault,
+			flowerPotAllColumns,
+			flowerPotColumnsWithDefault,
+			flowerPotColumnsWithoutDefault,
 			nzDefaults,
 		)
 		update := updateColumns.UpdateColumnSet(
-			potAllColumns,
-			potPrimaryKeyColumns,
+			flowerPotAllColumns,
+			flowerPotPrimaryKeyColumns,
 		)
 
 		if updateOnConflict && len(update) == 0 {
-			return errors.New("models: unable to upsert Pot, could not build update column list")
+			return errors.New("models: unable to upsert FlowerPot, could not build update column list")
 		}
 
 		conflict := conflictColumns
 		if len(conflict) == 0 {
-			conflict = make([]string, len(potPrimaryKeyColumns))
-			copy(conflict, potPrimaryKeyColumns)
+			conflict = make([]string, len(flowerPotPrimaryKeyColumns))
+			copy(conflict, flowerPotPrimaryKeyColumns)
 		}
-		cache.query = buildUpsertQuerySQLite(dialect, "\"Pot\"", updateOnConflict, ret, update, conflict, insert)
+		cache.query = buildUpsertQuerySQLite(dialect, "\"FlowerPot\"", updateOnConflict, ret, update, conflict, insert)
 
-		cache.valueMapping, err = queries.BindMapping(potType, potMapping, insert)
+		cache.valueMapping, err = queries.BindMapping(flowerPotType, flowerPotMapping, insert)
 		if err != nil {
 			return err
 		}
 		if len(ret) != 0 {
-			cache.retMapping, err = queries.BindMapping(potType, potMapping, ret)
+			cache.retMapping, err = queries.BindMapping(flowerPotType, flowerPotMapping, ret)
 			if err != nil {
 				return err
 			}
@@ -876,27 +920,27 @@ func (o *Pot) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCon
 		_, err = exec.ExecContext(ctx, cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "models: unable to upsert Pot")
+		return errors.Wrap(err, "models: unable to upsert FlowerPot")
 	}
 
 	if !cached {
-		potUpsertCacheMut.Lock()
-		potUpsertCache[key] = cache
-		potUpsertCacheMut.Unlock()
+		flowerPotUpsertCacheMut.Lock()
+		flowerPotUpsertCache[key] = cache
+		flowerPotUpsertCacheMut.Unlock()
 	}
 
 	return nil
 }
 
-// Delete deletes a single Pot record with an executor.
+// Delete deletes a single FlowerPot record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *Pot) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *FlowerPot) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
-		return 0, errors.New("models: no Pot provided for delete")
+		return 0, errors.New("models: no FlowerPot provided for delete")
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), potPrimaryKeyMapping)
-	sql := "DELETE FROM \"Pot\" WHERE \"id\"=?"
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), flowerPotPrimaryKeyMapping)
+	sql := "DELETE FROM \"FlowerPot\" WHERE \"id\"=?"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -905,52 +949,52 @@ func (o *Pot) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, err
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete from Pot")
+		return 0, errors.Wrap(err, "models: unable to delete from FlowerPot")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for Pot")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for FlowerPot")
 	}
 
 	return rowsAff, nil
 }
 
 // DeleteAll deletes all matching rows.
-func (q potQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q flowerPotQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
-		return 0, errors.New("models: no potQuery provided for delete all")
+		return 0, errors.New("models: no flowerPotQuery provided for delete all")
 	}
 
 	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from Pot")
+		return 0, errors.Wrap(err, "models: unable to delete all from FlowerPot")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for Pot")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for FlowerPot")
 	}
 
 	return rowsAff, nil
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o PotSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o FlowerPotSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
 
 	var args []interface{}
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), potPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), flowerPotPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "DELETE FROM \"Pot\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 0, potPrimaryKeyColumns, len(o))
+	sql := "DELETE FROM \"FlowerPot\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 0, flowerPotPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -959,12 +1003,12 @@ func (o PotSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from pot slice")
+		return 0, errors.Wrap(err, "models: unable to delete all from flowerPot slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for Pot")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for FlowerPot")
 	}
 
 	return rowsAff, nil
@@ -972,8 +1016,8 @@ func (o PotSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int
 
 // Reload refetches the object from the database
 // using the primary keys with an executor.
-func (o *Pot) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindPot(ctx, exec, o.ID)
+func (o *FlowerPot) Reload(ctx context.Context, exec boil.ContextExecutor) error {
+	ret, err := FindFlowerPot(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -984,26 +1028,26 @@ func (o *Pot) Reload(ctx context.Context, exec boil.ContextExecutor) error {
 
 // ReloadAll refetches every row with matching primary key column values
 // and overwrites the original object slice with the newly updated slice.
-func (o *PotSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
+func (o *FlowerPotSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
 	if o == nil || len(*o) == 0 {
 		return nil
 	}
 
-	slice := PotSlice{}
+	slice := FlowerPotSlice{}
 	var args []interface{}
 	for _, obj := range *o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), potPrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), flowerPotPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "SELECT \"Pot\".* FROM \"Pot\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 0, potPrimaryKeyColumns, len(*o))
+	sql := "SELECT \"FlowerPot\".* FROM \"FlowerPot\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 0, flowerPotPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
 	err := q.Bind(ctx, exec, &slice)
 	if err != nil {
-		return errors.Wrap(err, "models: unable to reload all in PotSlice")
+		return errors.Wrap(err, "models: unable to reload all in FlowerPotSlice")
 	}
 
 	*o = slice
@@ -1011,10 +1055,10 @@ func (o *PotSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) err
 	return nil
 }
 
-// PotExists checks if the Pot row exists.
-func PotExists(ctx context.Context, exec boil.ContextExecutor, iD string) (bool, error) {
+// FlowerPotExists checks if the FlowerPot row exists.
+func FlowerPotExists(ctx context.Context, exec boil.ContextExecutor, iD string) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"Pot\" where \"id\"=? limit 1)"
+	sql := "select exists(select 1 from \"FlowerPot\" where \"id\"=? limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1025,7 +1069,7 @@ func PotExists(ctx context.Context, exec boil.ContextExecutor, iD string) (bool,
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "models: unable to check if Pot exists")
+		return false, errors.Wrap(err, "models: unable to check if FlowerPot exists")
 	}
 
 	return exists, nil

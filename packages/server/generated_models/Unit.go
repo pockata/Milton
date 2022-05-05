@@ -79,20 +79,20 @@ var UnitWhere = struct {
 
 // UnitRels is where relationship names are stored.
 var UnitRels = struct {
-	UnitJobs string
-	UnitLogs string
-	UnitPots string
+	UnitFlowerPots string
+	UnitJobs       string
+	UnitLogs       string
 }{
-	UnitJobs: "UnitJobs",
-	UnitLogs: "UnitLogs",
-	UnitPots: "UnitPots",
+	UnitFlowerPots: "UnitFlowerPots",
+	UnitJobs:       "UnitJobs",
+	UnitLogs:       "UnitLogs",
 }
 
 // unitR is where relationships are stored.
 type unitR struct {
-	UnitJobs JobSlice `boil:"UnitJobs" json:"UnitJobs" toml:"UnitJobs" yaml:"UnitJobs"`
-	UnitLogs LogSlice `boil:"UnitLogs" json:"UnitLogs" toml:"UnitLogs" yaml:"UnitLogs"`
-	UnitPots PotSlice `boil:"UnitPots" json:"UnitPots" toml:"UnitPots" yaml:"UnitPots"`
+	UnitFlowerPots FlowerPotSlice `boil:"UnitFlowerPots" json:"UnitFlowerPots" toml:"UnitFlowerPots" yaml:"UnitFlowerPots"`
+	UnitJobs       JobSlice       `boil:"UnitJobs" json:"UnitJobs" toml:"UnitJobs" yaml:"UnitJobs"`
+	UnitLogs       LogSlice       `boil:"UnitLogs" json:"UnitLogs" toml:"UnitLogs" yaml:"UnitLogs"`
 }
 
 // NewStruct creates a new relationship struct
@@ -202,6 +202,27 @@ func (q unitQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
+// UnitFlowerPots retrieves all the FlowerPot's FlowerPots with an executor via unit_id column.
+func (o *Unit) UnitFlowerPots(mods ...qm.QueryMod) flowerPotQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"FlowerPot\".\"unit_id\"=?", o.ID),
+	)
+
+	query := FlowerPots(queryMods...)
+	queries.SetFrom(query.Query, "\"FlowerPot\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"FlowerPot\".*"})
+	}
+
+	return query
+}
+
 // UnitJobs retrieves all the Job's Jobs with an executor via unit_id column.
 func (o *Unit) UnitJobs(mods ...qm.QueryMod) jobQuery {
 	var queryMods []qm.QueryMod
@@ -244,25 +265,95 @@ func (o *Unit) UnitLogs(mods ...qm.QueryMod) logQuery {
 	return query
 }
 
-// UnitPots retrieves all the Pot's Pots with an executor via unit_id column.
-func (o *Unit) UnitPots(mods ...qm.QueryMod) potQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
+// LoadUnitFlowerPots allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (unitL) LoadUnitFlowerPots(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUnit interface{}, mods queries.Applicator) error {
+	var slice []*Unit
+	var object *Unit
+
+	if singular {
+		object = maybeUnit.(*Unit)
+	} else {
+		slice = *maybeUnit.(*[]*Unit)
 	}
 
-	queryMods = append(queryMods,
-		qm.Where("\"Pot\".\"unit_id\"=?", o.ID),
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &unitR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &unitR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`FlowerPot`),
+		qm.WhereIn(`FlowerPot.unit_id in ?`, args...),
 	)
-
-	query := Pots(queryMods...)
-	queries.SetFrom(query.Query, "\"Pot\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"Pot\".*"})
+	if mods != nil {
+		mods.Apply(query)
 	}
 
-	return query
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load FlowerPot")
+	}
+
+	var resultSlice []*FlowerPot
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice FlowerPot")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on FlowerPot")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for FlowerPot")
+	}
+
+	if singular {
+		object.R.UnitFlowerPots = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &flowerPotR{}
+			}
+			foreign.R.Unit = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UnitID {
+				local.R.UnitFlowerPots = append(local.R.UnitFlowerPots, foreign)
+				if foreign.R == nil {
+					foreign.R = &flowerPotR{}
+				}
+				foreign.R.Unit = local
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 // LoadUnitJobs allows an eager lookup of values, cached into the
@@ -447,94 +538,56 @@ func (unitL) LoadUnitLogs(ctx context.Context, e boil.ContextExecutor, singular 
 	return nil
 }
 
-// LoadUnitPots allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (unitL) LoadUnitPots(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUnit interface{}, mods queries.Applicator) error {
-	var slice []*Unit
-	var object *Unit
+// AddUnitFlowerPots adds the given related objects to the existing relationships
+// of the Unit, optionally inserting them as new records.
+// Appends related to o.R.UnitFlowerPots.
+// Sets related.R.Unit appropriately.
+func (o *Unit) AddUnitFlowerPots(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*FlowerPot) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UnitID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"FlowerPot\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 0, []string{"unit_id"}),
+				strmangle.WhereClause("\"", "\"", 0, flowerPotPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
 
-	if singular {
-		object = maybeUnit.(*Unit)
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UnitID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &unitR{
+			UnitFlowerPots: related,
+		}
 	} else {
-		slice = *maybeUnit.(*[]*Unit)
+		o.R.UnitFlowerPots = append(o.R.UnitFlowerPots, related...)
 	}
 
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &unitR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &unitR{}
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &flowerPotR{
+				Unit: o,
 			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
+		} else {
+			rel.R.Unit = o
 		}
 	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`Pot`),
-		qm.WhereIn(`Pot.unit_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load Pot")
-	}
-
-	var resultSlice []*Pot
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Pot")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on Pot")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for Pot")
-	}
-
-	if singular {
-		object.R.UnitPots = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &potR{}
-			}
-			foreign.R.Unit = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.UnitID {
-				local.R.UnitPots = append(local.R.UnitPots, foreign)
-				if foreign.R == nil {
-					foreign.R = &potR{}
-				}
-				foreign.R.Unit = local
-				break
-			}
-		}
-	}
-
 	return nil
 }
 
@@ -635,59 +688,6 @@ func (o *Unit) AddUnitLogs(ctx context.Context, exec boil.ContextExecutor, inser
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &logR{
-				Unit: o,
-			}
-		} else {
-			rel.R.Unit = o
-		}
-	}
-	return nil
-}
-
-// AddUnitPots adds the given related objects to the existing relationships
-// of the Unit, optionally inserting them as new records.
-// Appends related to o.R.UnitPots.
-// Sets related.R.Unit appropriately.
-func (o *Unit) AddUnitPots(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Pot) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.UnitID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"Pot\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 0, []string{"unit_id"}),
-				strmangle.WhereClause("\"", "\"", 0, potPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.UnitID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &unitR{
-			UnitPots: related,
-		}
-	} else {
-		o.R.UnitPots = append(o.R.UnitPots, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &potR{
 				Unit: o,
 			}
 		} else {

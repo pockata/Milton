@@ -23,104 +23,60 @@ import (
 
 // Job is an object representing the database table.
 type Job struct {
-	ID        string    `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CreatedAt time.Time `boil:"createdAt" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
-	UpdatedAt time.Time `boil:"updatedAt" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
-	UnitID    string    `boil:"unit_id" json:"unit_id" toml:"unit_id" yaml:"unit_id"`
-	PotID     string    `boil:"pot_id" json:"pot_id" toml:"pot_id" yaml:"pot_id"`
-	WaterQty  int64     `boil:"WaterQty" json:"WaterQty" toml:"WaterQty" yaml:"WaterQty"`
-	StartTime time.Time `boil:"StartTime" json:"StartTime" toml:"StartTime" yaml:"StartTime"`
-	Status    int64     `boil:"Status" json:"Status" toml:"Status" yaml:"Status"`
+	ID          string    `boil:"id" json:"id" toml:"id" yaml:"id"`
+	CreatedAt   time.Time `boil:"createdAt" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
+	UpdatedAt   time.Time `boil:"updatedAt" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
+	UnitID      string    `boil:"unit_id" json:"unit_id" toml:"unit_id" yaml:"unit_id"`
+	FlowerPotID string    `boil:"flower_pot_id" json:"flower_pot_id" toml:"flower_pot_id" yaml:"flower_pot_id"`
+	WaterQty    int64     `boil:"WaterQty" json:"WaterQty" toml:"WaterQty" yaml:"WaterQty"`
+	StartTime   time.Time `boil:"StartTime" json:"StartTime" toml:"StartTime" yaml:"StartTime"`
+	Status      int64     `boil:"Status" json:"Status" toml:"Status" yaml:"Status"`
 
 	R *jobR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L jobL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var JobColumns = struct {
-	ID        string
-	CreatedAt string
-	UpdatedAt string
-	UnitID    string
-	PotID     string
-	WaterQty  string
-	StartTime string
-	Status    string
+	ID          string
+	CreatedAt   string
+	UpdatedAt   string
+	UnitID      string
+	FlowerPotID string
+	WaterQty    string
+	StartTime   string
+	Status      string
 }{
-	ID:        "id",
-	CreatedAt: "createdAt",
-	UpdatedAt: "updatedAt",
-	UnitID:    "unit_id",
-	PotID:     "pot_id",
-	WaterQty:  "WaterQty",
-	StartTime: "StartTime",
-	Status:    "Status",
+	ID:          "id",
+	CreatedAt:   "createdAt",
+	UpdatedAt:   "updatedAt",
+	UnitID:      "unit_id",
+	FlowerPotID: "flower_pot_id",
+	WaterQty:    "WaterQty",
+	StartTime:   "StartTime",
+	Status:      "Status",
 }
 
 var JobTableColumns = struct {
-	ID        string
-	CreatedAt string
-	UpdatedAt string
-	UnitID    string
-	PotID     string
-	WaterQty  string
-	StartTime string
-	Status    string
+	ID          string
+	CreatedAt   string
+	UpdatedAt   string
+	UnitID      string
+	FlowerPotID string
+	WaterQty    string
+	StartTime   string
+	Status      string
 }{
-	ID:        "Job.id",
-	CreatedAt: "Job.createdAt",
-	UpdatedAt: "Job.updatedAt",
-	UnitID:    "Job.unit_id",
-	PotID:     "Job.pot_id",
-	WaterQty:  "Job.WaterQty",
-	StartTime: "Job.StartTime",
-	Status:    "Job.Status",
+	ID:          "Job.id",
+	CreatedAt:   "Job.createdAt",
+	UpdatedAt:   "Job.updatedAt",
+	UnitID:      "Job.unit_id",
+	FlowerPotID: "Job.flower_pot_id",
+	WaterQty:    "Job.WaterQty",
+	StartTime:   "Job.StartTime",
+	Status:      "Job.Status",
 }
 
 // Generated where
-
-type whereHelperstring struct{ field string }
-
-func (w whereHelperstring) EQ(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperstring) NEQ(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperstring) LT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperstring) LTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperstring) GT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperstring) GTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperstring) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-type whereHelpertime_Time struct{ field string }
-
-func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
-}
-func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
-}
-func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
 
 type whereHelperint64 struct{ field string }
 
@@ -146,41 +102,41 @@ func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
 }
 
 var JobWhere = struct {
-	ID        whereHelperstring
-	CreatedAt whereHelpertime_Time
-	UpdatedAt whereHelpertime_Time
-	UnitID    whereHelperstring
-	PotID     whereHelperstring
-	WaterQty  whereHelperint64
-	StartTime whereHelpertime_Time
-	Status    whereHelperint64
+	ID          whereHelperstring
+	CreatedAt   whereHelpertime_Time
+	UpdatedAt   whereHelpertime_Time
+	UnitID      whereHelperstring
+	FlowerPotID whereHelperstring
+	WaterQty    whereHelperint64
+	StartTime   whereHelpertime_Time
+	Status      whereHelperint64
 }{
-	ID:        whereHelperstring{field: "\"Job\".\"id\""},
-	CreatedAt: whereHelpertime_Time{field: "\"Job\".\"createdAt\""},
-	UpdatedAt: whereHelpertime_Time{field: "\"Job\".\"updatedAt\""},
-	UnitID:    whereHelperstring{field: "\"Job\".\"unit_id\""},
-	PotID:     whereHelperstring{field: "\"Job\".\"pot_id\""},
-	WaterQty:  whereHelperint64{field: "\"Job\".\"WaterQty\""},
-	StartTime: whereHelpertime_Time{field: "\"Job\".\"StartTime\""},
-	Status:    whereHelperint64{field: "\"Job\".\"Status\""},
+	ID:          whereHelperstring{field: "\"Job\".\"id\""},
+	CreatedAt:   whereHelpertime_Time{field: "\"Job\".\"createdAt\""},
+	UpdatedAt:   whereHelpertime_Time{field: "\"Job\".\"updatedAt\""},
+	UnitID:      whereHelperstring{field: "\"Job\".\"unit_id\""},
+	FlowerPotID: whereHelperstring{field: "\"Job\".\"flower_pot_id\""},
+	WaterQty:    whereHelperint64{field: "\"Job\".\"WaterQty\""},
+	StartTime:   whereHelpertime_Time{field: "\"Job\".\"StartTime\""},
+	Status:      whereHelperint64{field: "\"Job\".\"Status\""},
 }
 
 // JobRels is where relationship names are stored.
 var JobRels = struct {
-	Pot     string
-	Unit    string
-	JobLogs string
+	FlowerPot string
+	Unit      string
+	JobLogs   string
 }{
-	Pot:     "Pot",
-	Unit:    "Unit",
-	JobLogs: "JobLogs",
+	FlowerPot: "FlowerPot",
+	Unit:      "Unit",
+	JobLogs:   "JobLogs",
 }
 
 // jobR is where relationships are stored.
 type jobR struct {
-	Pot     *Pot     `boil:"Pot" json:"Pot" toml:"Pot" yaml:"Pot"`
-	Unit    *Unit    `boil:"Unit" json:"Unit" toml:"Unit" yaml:"Unit"`
-	JobLogs LogSlice `boil:"JobLogs" json:"JobLogs" toml:"JobLogs" yaml:"JobLogs"`
+	FlowerPot *FlowerPot `boil:"FlowerPot" json:"FlowerPot" toml:"FlowerPot" yaml:"FlowerPot"`
+	Unit      *Unit      `boil:"Unit" json:"Unit" toml:"Unit" yaml:"Unit"`
+	JobLogs   LogSlice   `boil:"JobLogs" json:"JobLogs" toml:"JobLogs" yaml:"JobLogs"`
 }
 
 // NewStruct creates a new relationship struct
@@ -192,8 +148,8 @@ func (*jobR) NewStruct() *jobR {
 type jobL struct{}
 
 var (
-	jobAllColumns            = []string{"id", "createdAt", "updatedAt", "unit_id", "pot_id", "WaterQty", "StartTime", "Status"}
-	jobColumnsWithoutDefault = []string{"id", "updatedAt", "unit_id", "pot_id", "WaterQty", "StartTime"}
+	jobAllColumns            = []string{"id", "createdAt", "updatedAt", "unit_id", "flower_pot_id", "WaterQty", "StartTime", "Status"}
+	jobColumnsWithoutDefault = []string{"id", "updatedAt", "unit_id", "flower_pot_id", "WaterQty", "StartTime"}
 	jobColumnsWithDefault    = []string{"createdAt", "Status"}
 	jobPrimaryKeyColumns     = []string{"id"}
 	jobGeneratedColumns      = []string{}
@@ -290,16 +246,16 @@ func (q jobQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, 
 	return count > 0, nil
 }
 
-// Pot pointed to by the foreign key.
-func (o *Job) Pot(mods ...qm.QueryMod) potQuery {
+// FlowerPot pointed to by the foreign key.
+func (o *Job) FlowerPot(mods ...qm.QueryMod) flowerPotQuery {
 	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.PotID),
+		qm.Where("\"id\" = ?", o.FlowerPotID),
 	}
 
 	queryMods = append(queryMods, mods...)
 
-	query := Pots(queryMods...)
-	queries.SetFrom(query.Query, "\"Pot\"")
+	query := FlowerPots(queryMods...)
+	queries.SetFrom(query.Query, "\"FlowerPot\"")
 
 	return query
 }
@@ -339,9 +295,9 @@ func (o *Job) JobLogs(mods ...qm.QueryMod) logQuery {
 	return query
 }
 
-// LoadPot allows an eager lookup of values, cached into the
+// LoadFlowerPot allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
-func (jobL) LoadPot(ctx context.Context, e boil.ContextExecutor, singular bool, maybeJob interface{}, mods queries.Applicator) error {
+func (jobL) LoadFlowerPot(ctx context.Context, e boil.ContextExecutor, singular bool, maybeJob interface{}, mods queries.Applicator) error {
 	var slice []*Job
 	var object *Job
 
@@ -356,7 +312,7 @@ func (jobL) LoadPot(ctx context.Context, e boil.ContextExecutor, singular bool, 
 		if object.R == nil {
 			object.R = &jobR{}
 		}
-		args = append(args, object.PotID)
+		args = append(args, object.FlowerPotID)
 
 	} else {
 	Outer:
@@ -366,12 +322,12 @@ func (jobL) LoadPot(ctx context.Context, e boil.ContextExecutor, singular bool, 
 			}
 
 			for _, a := range args {
-				if a == obj.PotID {
+				if a == obj.FlowerPotID {
 					continue Outer
 				}
 			}
 
-			args = append(args, obj.PotID)
+			args = append(args, obj.FlowerPotID)
 
 		}
 	}
@@ -381,8 +337,8 @@ func (jobL) LoadPot(ctx context.Context, e boil.ContextExecutor, singular bool, 
 	}
 
 	query := NewQuery(
-		qm.From(`Pot`),
-		qm.WhereIn(`Pot.id in ?`, args...),
+		qm.From(`FlowerPot`),
+		qm.WhereIn(`FlowerPot.id in ?`, args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -390,19 +346,19 @@ func (jobL) LoadPot(ctx context.Context, e boil.ContextExecutor, singular bool, 
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load Pot")
+		return errors.Wrap(err, "failed to eager load FlowerPot")
 	}
 
-	var resultSlice []*Pot
+	var resultSlice []*FlowerPot
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Pot")
+		return errors.Wrap(err, "failed to bind eager loaded slice FlowerPot")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for Pot")
+		return errors.Wrap(err, "failed to close results of eager load for FlowerPot")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for Pot")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for FlowerPot")
 	}
 
 	if len(resultSlice) == 0 {
@@ -411,22 +367,22 @@ func (jobL) LoadPot(ctx context.Context, e boil.ContextExecutor, singular bool, 
 
 	if singular {
 		foreign := resultSlice[0]
-		object.R.Pot = foreign
+		object.R.FlowerPot = foreign
 		if foreign.R == nil {
-			foreign.R = &potR{}
+			foreign.R = &flowerPotR{}
 		}
-		foreign.R.PotJobs = append(foreign.R.PotJobs, object)
+		foreign.R.FlowerPotJobs = append(foreign.R.FlowerPotJobs, object)
 		return nil
 	}
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if local.PotID == foreign.ID {
-				local.R.Pot = foreign
+			if local.FlowerPotID == foreign.ID {
+				local.R.FlowerPot = foreign
 				if foreign.R == nil {
-					foreign.R = &potR{}
+					foreign.R = &flowerPotR{}
 				}
-				foreign.R.PotJobs = append(foreign.R.PotJobs, local)
+				foreign.R.FlowerPotJobs = append(foreign.R.FlowerPotJobs, local)
 				break
 			}
 		}
@@ -622,10 +578,10 @@ func (jobL) LoadJobLogs(ctx context.Context, e boil.ContextExecutor, singular bo
 	return nil
 }
 
-// SetPot of the job to the related item.
-// Sets o.R.Pot to related.
-// Adds o to related.R.PotJobs.
-func (o *Job) SetPot(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Pot) error {
+// SetFlowerPot of the job to the related item.
+// Sets o.R.FlowerPot to related.
+// Adds o to related.R.FlowerPotJobs.
+func (o *Job) SetFlowerPot(ctx context.Context, exec boil.ContextExecutor, insert bool, related *FlowerPot) error {
 	var err error
 	if insert {
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -635,7 +591,7 @@ func (o *Job) SetPot(ctx context.Context, exec boil.ContextExecutor, insert bool
 
 	updateQuery := fmt.Sprintf(
 		"UPDATE \"Job\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 0, []string{"pot_id"}),
+		strmangle.SetParamNames("\"", "\"", 0, []string{"flower_pot_id"}),
 		strmangle.WhereClause("\"", "\"", 0, jobPrimaryKeyColumns),
 	)
 	values := []interface{}{related.ID, o.ID}
@@ -649,21 +605,21 @@ func (o *Job) SetPot(ctx context.Context, exec boil.ContextExecutor, insert bool
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	o.PotID = related.ID
+	o.FlowerPotID = related.ID
 	if o.R == nil {
 		o.R = &jobR{
-			Pot: related,
+			FlowerPot: related,
 		}
 	} else {
-		o.R.Pot = related
+		o.R.FlowerPot = related
 	}
 
 	if related.R == nil {
-		related.R = &potR{
-			PotJobs: JobSlice{o},
+		related.R = &flowerPotR{
+			FlowerPotJobs: JobSlice{o},
 		}
 	} else {
-		related.R.PotJobs = append(related.R.PotJobs, o)
+		related.R.FlowerPotJobs = append(related.R.FlowerPotJobs, o)
 	}
 
 	return nil
