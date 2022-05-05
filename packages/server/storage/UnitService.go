@@ -47,15 +47,15 @@ func (u *UnitService) All() ([]milton.Unit, error) {
 	mUnits := make([]milton.Unit, len(units))
 
 	for i, un := range units {
-		mUnits[i] = u.transform(un)
+		mUnits[i] = transformUnit(un, u.db)
 	}
 
 	return mUnits, nil
 }
 
-func (u *UnitService) transform(unit *models.Unit) milton.Unit {
+func transformUnit(unit *models.Unit, db *sql.DB) milton.Unit {
 	return &Unit{
 		unit: unit,
-		db:   u.db,
+		db:   db,
 	}
 }

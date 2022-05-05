@@ -27,7 +27,7 @@ func (p *FlowerPotService) Add(name string, unit milton.Unit) (milton.FlowerPot,
 		return nil, err
 	}
 
-	return p.transform(&pot), nil
+	return transformFlowerPot(&pot, p.db), nil
 }
 
 func (p *FlowerPotService) Remove(ID string) error {
@@ -56,15 +56,15 @@ func (p *FlowerPotService) All() ([]milton.FlowerPot, error) {
 	mpots := make([]milton.FlowerPot, len(pots))
 
 	for i := range pots {
-		mpots[i] = p.transform(pots[i])
+		mpots[i] = transformFlowerPot(pots[i], p.db)
 	}
 
 	return mpots, nil
 }
 
-func (p *FlowerPotService) transform(pot *models.FlowerPot) milton.FlowerPot {
+func transformFlowerPot(pot *models.FlowerPot, db *sql.DB) milton.FlowerPot {
 	return &FlowerPot{
-		db:  p.db,
+		db:  db,
 		pot: pot,
 	}
 }
