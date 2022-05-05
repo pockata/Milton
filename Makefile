@@ -48,3 +48,5 @@ orm-generate: boiler-check
 	@echo -e "Generating ORM...\n"
 	@cd "${SRV}" && SQLITE3_DBNAME="${SRV}/sqlite.db" $(BOILER) sqlite3
 
+go-tidy:
+	@cd "${SRV}" && go mod tidy
