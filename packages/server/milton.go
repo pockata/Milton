@@ -42,6 +42,13 @@ type Job interface {
 	WaterQty() int64
 	Status() JobStatus
 	Remove() error
+	Update(JobUpdateConfig) error
+}
+
+type JobUpdateConfig struct {
+	StartTime *time.Time
+	Status    *JobStatus
+	WaterQty  *int64
 }
 
 type JobService interface {

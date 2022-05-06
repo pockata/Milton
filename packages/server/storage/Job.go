@@ -3,9 +3,12 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"milton"
 	models "milton/generated_models"
 	"time"
+
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type Job struct {
@@ -50,6 +53,35 @@ func (j *Job) Status() milton.JobStatus {
 func (j *Job) Remove() error {
 	ctx := context.Background()
 	_, err := j.job.Delete(ctx, j.db)
+
+	return err
+}
+
+func (j *Job) Update(cfg milton.JobUpdateConfig) error {
+	// not too happy with this approach
+	hasChangedField := false
+
+	if cfg.StartTime != nil {
+		j.job.StartTime = *cfg.StartTime
+		hasChangedField = true
+	}
+
+	if cfg.WaterQty != nil {
+		j.job.WaterQty = *cfg.WaterQty
+		hasChangedField = true
+	}
+
+	if cfg.Status != nil {
+		j.job.Status = int64(*cfg.Status)
+		hasChangedField = true
+	}
+
+	if !hasChangedField {
+		return errors.New("No values passed for updating")
+	}
+
+	ctx := context.Background()
+	_, err := j.job.Update(ctx, j.db, boil.Infer())
 
 	return err
 }
