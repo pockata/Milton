@@ -29,7 +29,7 @@ type FlowerPot interface {
 type JobStatus uint8
 
 const (
-	Pending JobStatus = iota
+	Pending JobStatus = iota + 1
 	Running
 	Complete
 	Error
