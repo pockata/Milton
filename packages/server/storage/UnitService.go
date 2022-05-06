@@ -10,8 +10,7 @@ import (
 )
 
 type UnitService struct {
-	unit *models.Unit
-	db   *sql.DB
+	db *sql.DB
 }
 
 func (u *UnitService) Pair(mdns string, name string) error {
