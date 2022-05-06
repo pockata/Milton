@@ -36,6 +36,7 @@ const (
 )
 
 type Job interface {
+	ID() string
 	Unit() (Unit, error)
 	FlowerPot() (FlowerPot, error)
 	StartTime() time.Time

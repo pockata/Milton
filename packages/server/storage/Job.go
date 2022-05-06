@@ -16,6 +16,10 @@ type Job struct {
 	job *models.Job
 }
 
+func (j *Job) ID() string {
+	return j.job.ID
+}
+
 func (j *Job) Unit() (milton.Unit, error) {
 	ctx := context.Background()
 
