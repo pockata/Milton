@@ -66,3 +66,36 @@ type JobCreateConfig struct {
 	WaterQty  int64
 	Status    JobStatus
 }
+
+type LogService interface {
+	Add(LogCreateConfig) error
+	GetAll() (string, error)
+}
+
+type LogCreateConfig struct {
+	Unit    Unit
+	Job     Job
+	Message string
+}
+
+type LogFormat struct {
+	Message   string       `json:"message"`
+	Unit      LogUnit      `json:"unit"`
+	Job       LogJob       `json:"job"`
+	FlowerPot LogFlowerPot `json:"flowerPot"`
+}
+
+type LogUnit struct {
+	Name string `json:"name"`
+	MDNS string `json:"mdns"`
+}
+
+type LogJob struct {
+	StartTime time.Time `json:"startTime"`
+	WaterQty  int64     `json:"waterQty"`
+	Status    JobStatus `json:"status"`
+}
+
+type LogFlowerPot struct {
+	Name string `json:"name"`
+}
