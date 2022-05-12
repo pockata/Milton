@@ -1,13 +1,18 @@
 package storage
 
 import (
-	"database/sql"
+	"milton"
 	models "milton/generated_models"
 )
 
 type Unit struct {
 	unit *models.Unit
-	db   *sql.DB
+}
+
+func NewUnit(unit *models.Unit) milton.Unit {
+	return &Unit{
+		unit: unit,
+	}
 }
 
 func (u *Unit) Name() string {

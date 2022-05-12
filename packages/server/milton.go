@@ -6,6 +6,7 @@ type UnitService interface {
 	Pair(string, string) error
 	Unpair(string) error
 	All() ([]Unit, error)
+	Get(string) (Unit, error)
 }
 
 type Unit interface {
@@ -23,7 +24,6 @@ type FlowerPotService interface {
 type FlowerPot interface {
 	ID() string
 	Name() string
-	Update(name string) error
 }
 
 type JobStatus uint8
@@ -37,13 +37,11 @@ const (
 
 type Job interface {
 	ID() string
-	Unit() (Unit, error)
-	FlowerPot() (FlowerPot, error)
+	Unit() Unit
+	FlowerPot() FlowerPot
 	StartTime() time.Time
 	WaterQty() int64
 	Status() JobStatus
-	Remove() error
-	Update(JobUpdateConfig) error
 }
 
 type JobUpdateConfig struct {
@@ -57,6 +55,7 @@ type JobService interface {
 	GetAll() ([]Job, error)
 	Remove(string) error
 	Add(JobCreateConfig) (Job, error)
+	Update(JobUpdateConfig) (Job, error)
 }
 
 type JobCreateConfig struct {
