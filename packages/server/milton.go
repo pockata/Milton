@@ -1,6 +1,16 @@
 package milton
 
-import "time"
+import (
+	"time"
+
+	"go.uber.org/zap"
+)
+
+// Build is the git version of this program. It is set using Build flags in the
+// Makefile.
+var Build = "develop"
+
+type Logger = zap.SugaredLogger
 
 type UnitService interface {
 	Pair(string, string) error

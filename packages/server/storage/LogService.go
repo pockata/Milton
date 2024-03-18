@@ -16,6 +16,10 @@ type LogService struct {
 	db *sql.DB
 }
 
+func NewLogService(db *sql.DB) *LogService {
+	return &LogService{db: db}
+}
+
 func (l *LogService) Add(cfg milton.LogCreateConfig) error {
 	ctx := context.Background()
 
