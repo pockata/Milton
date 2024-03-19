@@ -2,7 +2,6 @@ package storage
 
 import (
 	"database/sql"
-	"log"
 	"milton"
 	"os"
 )
@@ -10,17 +9,17 @@ import (
 type DB struct {
 	instance *sql.DB
 	SQLFile  string
-	log      *milton.Logger
+	log      milton.Logger
 }
 
-func NewDB(SQLFile string) *DB {
+func NewDB(SQLFile string, log milton.Logger) *DB {
 	return &DB{
 		SQLFile: SQLFile,
+		log:     log,
 	}
 }
 
 func (db *DB) Connect() (*sql.DB, error) {
-	var err error
 	dsn := ""
 
 	// create & setup the DB if it hasn't been initialized
@@ -29,6 +28,7 @@ func (db *DB) Connect() (*sql.DB, error) {
 	}
 
 	// Open handle to database like normal
+	var err error
 	db.instance, err = sql.Open("sqlite3", dsn)
 
 	if err != nil {
@@ -39,15 +39,13 @@ func (db *DB) Connect() (*sql.DB, error) {
 }
 
 func (db *DB) _create() {
-	log.Printf("Creating sqlite file %s\n", db.SQLFile)
+	db.log.Info("creating sqlite file", "file", db.SQLFile)
 
 	file, err := os.Create(db.SQLFile) // Create SQLite file
-
 	if err != nil {
-		log.Fatal(err.Error())
+		db.log.Error("error creating sqlite file", "err", err.Error())
+		os.Exit(1)
 	}
 
-	file.Close()
-
-	log.Printf("%s created\n", db.SQLFile)
+	defer file.Close()
 }
