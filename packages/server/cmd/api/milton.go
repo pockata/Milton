@@ -7,10 +7,11 @@ import (
 	"os"
 
 	"github.com/ardanlabs/conf/v3"
-	"github.com/gorilla/mux"
 
 	"milton"
 	"milton/foundation"
+	"milton/helpers"
+	"milton/routes"
 	"milton/storage"
 )
 
@@ -61,15 +62,38 @@ func run(log milton.Logger) error {
 	}
 	log.Info("startup", "config", out)
 
-	db := storage.NewDB(cfg.DB.File)
+	db := storage.NewDB(cfg.DB.File, log)
 	dbInstance, err := db.Connect()
 
 	if err != nil {
-		return fmt.Errorf("Couldn't connect to the database: %w", err)
+		return fmt.Errorf("couldn't connect to the database: %w", err)
 	}
 
-	router := mux.NewRouter().StrictSlash(true)
-	api := router.PathPrefix("/v1/").Subrouter()
+	router := http.NewServeMux()
+	w := helpers.CreateAPIWrapHandler(dbInstance)
+
+	// // router := mux.NewRouter().StrictSlash(true)
+	// api := router.PathPrefix("/v1/").Subrouter()
+
+	router.HandleFunc("GET /query-active-units", w(routes.QueryActiveUnits))
+
+	// units
+	router.HandleFunc("GET /get-paired-units", w(routes.GetPairedUnits))
+	router.HandleFunc("POST /pair-unit", w(routes.PairUnit))
+	router.HandleFunc("POST /unpair-unit", w(routes.UnpairUnit))
+
+	// pots
+	router.HandleFunc("POST /add-pot", w(routes.AddPot))
+	router.HandleFunc("GET /get-pots/{UnitID}", w(routes.GetPots))
+	router.HandleFunc("POST /update-pot", w(routes.UpdatePot))
+	router.HandleFunc("POST /remove-pot", w(routes.RemovePot))
+
+	// watering jobs
+	router.HandleFunc("POST /add-job", w(routes.AddJob))
+	router.HandleFunc("POST /remove-job", w(routes.RemoveJob))
+	router.HandleFunc("POST /update-job", w(routes.UpdateJob))
+	router.HandleFunc("GET /get-jobs", w(routes.GetJobs))
+	router.HandleFunc("GET /get-job/{JobID}", w(routes.GetJob))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Web.Host, cfg.Web.Port)
 	return http.ListenAndServe(addr, router)

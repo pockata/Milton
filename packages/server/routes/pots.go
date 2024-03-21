@@ -1,21 +1,27 @@
 package routes
 
 import (
+	"context"
+	"database/sql"
 	"errors"
-	"log"
+	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 
+	models "milton/generated_models"
 	"milton/helpers"
-	"milton/models"
 )
 
-func AddPot(rw http.ResponseWriter, r *http.Request, db models.DB) {
+type CreatePotResponse struct {
+	Pot models.FlowerPot `json:"flowerPot"`
+}
+
+func AddPot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println("Error parsing form data", err)
+		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
@@ -23,84 +29,126 @@ func AddPot(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	name := r.PostForm.Get("Name")
 
 	if !helpers.CheckParams(name, unitID) {
-		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
+		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
-	var unit models.Unit
-	find := db.Instance.First(&unit, unitID)
-
-	if find.Error != nil {
-		helpers.ErrorResponse(rw, r, find.Error)
+	unit, err := models.FindUnit(context.Background(), db, unitID)
+	if err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't find unit: %w", err))
 		return
 	}
 
-	entry := &models.Pot{UnitID: unit.ID, Name: name}
-	helpers.CreateEntry(rw, r, *db.Instance, &entry)
+	pot := models.FlowerPot{
+		UnitID: unit.ID,
+		Name:   name,
+	}
+
+	if err := pot.Insert(context.Background(), db, boil.Infer()); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error inserting pot: %w", err))
+		return
+	}
+
+	helpers.SuccessResponse(w, r, CreatePotResponse{
+		Pot: pot,
+	})
 }
 
-func RemovePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
-	helpers.DeleteEntry(rw, r, *db.Instance, &models.Pot{})
+type RemovePotResponse struct {
+	Success bool `json:"success"`
 }
 
-func GetPots(rw http.ResponseWriter, r *http.Request, db models.DB) {
-	var pots []models.Pot
-	var unit models.Unit
+func RemovePot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
+		return
+	}
 
+	ID := r.Form.Get("ID")
+	if !helpers.CheckParams(ID) {
+		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
+		return
+	}
+
+	pot, err := models.FindFlowerPot(context.Background(), db, ID)
+	if err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error finding flower pot: %w", err))
+		return
+	}
+
+	if _, err := pot.Delete(context.Background(), db); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error deleting flower pot: %w", err))
+		return
+	}
+
+	helpers.SuccessResponse(w, r, RemovePotResponse{
+		Success: true,
+	})
+}
+
+type GetPotsResponse struct {
+	Pots models.FlowerPotSlice `json:"flowerPots"`
+}
+
+func GetPots(rw http.ResponseWriter, r *http.Request, db *sql.DB) {
 	vars := mux.Vars(r)
+	unitID := vars["UnitID"]
+	if helpers.CheckParams(unitID) {
+		helpers.ErrorResponse(rw, r, fmt.Errorf("invalid unit ID: %v", unitID))
+		return
+	}
 
-	unitID, err := strconv.Atoi(vars["UnitID"])
+	unit, err := models.FindUnit(context.Background(), db, unitID)
 	if err != nil {
-		helpers.ErrorResponse(rw, r, errors.New("Invalid unit ID"))
+		helpers.ErrorResponse(rw, r, fmt.Errorf("couldn't find unit id: %w", err))
 		return
 	}
 
-	findUnit := db.Instance.First(&unit, unitID)
-	if findUnit.Error != nil {
-		helpers.ErrorResponse(rw, r, errors.New("Non-existing unit ID"))
+	pots, err := unit.UnitFlowerPots().All(context.Background(), db)
+	if err != nil {
+		helpers.ErrorResponse(rw, r, fmt.Errorf("couldn't get unit pots: %w", err))
 		return
 	}
 
-	db.Instance.Model(&unit).Association("Pots").Find(&pots)
-
-	helpers.SuccessResponse(rw, r, pots)
+	helpers.SuccessResponse(rw, r, GetPotsResponse{
+		Pots: pots,
+	})
 }
 
-func UpdatePot(rw http.ResponseWriter, r *http.Request, db models.DB) {
-	var pot []models.Pot
+type UpdatePotResponse struct {
+	Success bool `json:"success"`
+}
 
-	err := r.ParseForm()
-	if err != nil {
-		log.Println("Error parsing form data", err)
+func UpdatePot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
 	potID := r.PostForm.Get("PotID")
 	name := r.PostForm.Get("Name")
-	UnitIDStr := r.PostForm.Get("UnitID")
+	UnitID := r.PostForm.Get("UnitID")
 
-	if !helpers.CheckParams(potID, name, UnitIDStr) {
-		helpers.ErrorResponse(rw, r, errors.New("Invalid parameters"))
+	if !helpers.CheckParams(potID, name, UnitID) {
+		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
-	UnitID, err := strconv.ParseUint(UnitIDStr, 10, 32)
-
+	pot, err := models.FindFlowerPot(context.Background(), db, potID)
 	if err != nil {
-		helpers.ErrorResponse(rw, r, err)
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't find pot: %w", err))
 		return
 	}
 
-	findPot := db.Instance.Find(&pot, potID)
-	if findPot.Error != nil {
-		helpers.ErrorResponse(rw, r, findPot.Error)
+	pot.Name = name
+	pot.UnitID = UnitID
+
+	if _, err := pot.Update(context.Background(), db, boil.Infer()); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't update pot: %w", err))
 		return
 	}
 
-	db.Instance.Model(&pot).Updates(models.Pot{
-		Name:   name,
-		UnitID: uint(UnitID),
+	helpers.SuccessResponse(w, r, UpdatePotResponse{
+		Success: true,
 	})
-
-	helpers.SuccessResponse(rw, r, &pot)
 }

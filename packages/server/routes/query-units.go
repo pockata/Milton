@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,8 +11,6 @@ import (
 	"sync"
 
 	"github.com/hashicorp/mdns"
-
-	"milton/models"
 )
 
 type PumpController struct {
@@ -20,7 +19,7 @@ type PumpController struct {
 	IP   net.IP
 }
 
-func QueryActiveUnits(rw http.ResponseWriter, r *http.Request, db models.DB) {
+func QueryActiveUnits(rw http.ResponseWriter, r *http.Request, _ *sql.DB) {
 	// Make a channel for results and start listening
 	entriesCh := make(chan *mdns.ServiceEntry, 4)
 

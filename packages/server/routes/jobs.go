@@ -1,22 +1,30 @@
 package routes
 
 import (
+	"context"
+	"database/sql"
 	"errors"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/lucsky/cuid"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
+	models "milton/generated_models"
 	"milton/helpers"
-	"milton/models"
 )
 
-func AddJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
-	err := r.ParseForm()
-	if err != nil {
-		log.Println("Error parsing form data", err)
+type AddJobResponse struct {
+	Job models.Job `json:"job"`
+}
+
+func AddJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
@@ -27,7 +35,7 @@ func AddJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
 	if !helpers.CheckParams(unitID, potID, waterQtyStr, startTimeStr, statusStr) {
-		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
+		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
@@ -37,79 +45,114 @@ func AddJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	status, _ := strconv.Atoi(statusStr)
 
 	if startTime.Before(time.Now()) {
-		helpers.ErrorResponse(rw, r, errors.New("Start time should be in the future"))
+		helpers.ErrorResponse(w, r, errors.New("start time should be in the future"))
 		return
 	}
 
-	var unit models.Unit
-	var pot models.Pot
+	job := models.Job{
+		ID:          fmt.Sprintf("j-%s", cuid.New()),
+		UnitID:      unitID,
+		FlowerPotID: potID,
+		WaterQty:    int64(waterQty),
+		StartTime:   startTime,
+		Status:      int64(status),
+	}
 
-	findUnit := db.Instance.First(&unit, unitID)
-	if findUnit.Error != nil {
-		helpers.ErrorResponse(rw, r, findUnit.Error)
+	if err := job.Insert(context.Background(), db, boil.Infer()); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't create job: %w", err))
 		return
 	}
 
-	findPot := db.Instance.First(&pot, potID)
-	if findPot.Error != nil {
-		helpers.ErrorResponse(rw, r, findPot.Error)
-		return
-	}
-
-	entry := &models.Job{
-		Unit:      unit,
-		Pot:       pot,
-		WaterQty:  waterQty,
-		StartTime: startTime,
-		Status:    status,
-	}
-
-	helpers.CreateEntry(rw, r, *db.Instance, &entry)
+	helpers.SuccessResponse(w, r, AddJobResponse{
+		Job: job,
+	})
 }
 
-func RemoveJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
-	helpers.DeleteEntry(rw, r, *db.Instance, &models.Job{})
+type RemoveJobResponse struct {
+	Success bool `json:"success"`
 }
 
-func GetJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
-	var job models.Job
+func RemoveJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
+		return
+	}
 
+	ID := r.Form.Get("ID")
+	if !helpers.CheckParams(ID) {
+		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
+		return
+	}
+
+	_, err := models.FindJob(context.Background(), db, ID)
+	if err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't find job: %w", err))
+		return
+	}
+
+	helpers.SuccessResponse(w, r, RemoveJobResponse{
+		Success: true,
+	})
+}
+
+type GetJobResponse struct {
+	Job models.Job `json:"job"`
+}
+
+func GetJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	vars := mux.Vars(r)
+	jobID := vars["JobID"]
 
-	jobID, err := strconv.Atoi(vars["JobID"])
+	if !helpers.CheckParams(jobID) {
+		helpers.ErrorResponse(w, r, errors.New("invalid job ID"))
+		return
+	}
+
+	mods := []qm.QueryMod{
+		models.JobWhere.ID.EQ(jobID),
+		qm.Load(models.JobRels.FlowerPot),
+		qm.Load(models.JobRels.Unit),
+	}
+
+	job, err := models.Jobs(mods...).One(context.Background(), db)
 	if err != nil {
-		helpers.ErrorResponse(rw, r, errors.New("Invalid job ID"))
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't get job: %w", err))
 		return
 	}
 
-	findJob := db.Instance.Preload("Unit").Preload("Pot").First(&job, jobID)
-	if findJob.Error != nil {
-		helpers.ErrorResponse(rw, r, errors.New("Non-existing job ID"))
-		return
-	}
-
-	helpers.SuccessResponse(rw, r, job)
+	helpers.SuccessResponse(w, r, GetJobResponse{
+		Job: *job,
+	})
 }
 
-func GetJobs(rw http.ResponseWriter, r *http.Request, db models.DB) {
-	var jobs []models.Job
+type GetJobsResponse struct {
+	Jobs models.JobSlice `json:"jobs"`
+}
 
-	getJobs := db.Instance.Preload("Unit").Preload("Pot").Find(&jobs)
+func GetJobs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	mods := []qm.QueryMod{
+		qm.Load(models.JobRels.FlowerPot),
+		qm.Load(models.JobRels.Unit),
+	}
 
-	if getJobs.Error != nil {
-		helpers.ErrorResponse(rw, r, getJobs.Error)
+	jobs, err := models.Jobs(mods...).All(context.Background(), db)
+	if err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't get jobs: %w", err))
 		return
 	}
 
-	helpers.SuccessResponse(rw, r, jobs)
+	helpers.SuccessResponse(w, r, GetJobsResponse{
+		Jobs: jobs,
+	})
 }
 
-func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
-	var job models.Job
+type UpdateJobResponse struct {
+	Job models.Job `json:"job"`
+}
 
-	err := r.ParseForm()
-	if err != nil {
-		log.Println("Error parsing form data", err)
+func UpdateJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
@@ -119,7 +162,7 @@ func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
 	if !helpers.CheckParams(jobID, waterQtyStr, startTimeStr, statusStr) {
-		helpers.ErrorResponse(rw, r, errors.New("Invalid request. Missing parameters"))
+		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
@@ -129,21 +172,26 @@ func UpdateJob(rw http.ResponseWriter, r *http.Request, db models.DB) {
 	status, _ := strconv.Atoi(statusStr)
 
 	if startTime.Before(time.Now()) {
-		helpers.ErrorResponse(rw, r, errors.New("Start time should be in the future"))
+		helpers.ErrorResponse(w, r, errors.New("start time should be in the future"))
 		return
 	}
 
-	findJob := db.Instance.First(&job, jobID)
-	if findJob.Error != nil {
-		helpers.ErrorResponse(rw, r, findJob.Error)
+	job, err := models.FindJob(context.Background(), db, jobID)
+	if err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't get job: %w", err))
 		return
 	}
 
-	db.Instance.Model(&job).Updates(models.Job{
-		WaterQty:  waterQty,
-		StartTime: startTime,
-		Status:    status,
+	job.WaterQty = int64(waterQty)
+	job.StartTime = startTime
+	job.Status = int64(status)
+
+	if _, err := job.Update(context.Background(), db, boil.Infer()); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't update job: %w", err))
+		return
+	}
+
+	helpers.SuccessResponse(w, r, UpdateJobResponse{
+		Job: *job,
 	})
-
-	helpers.SuccessResponse(rw, r, &job)
 }
