@@ -14,7 +14,9 @@ type UnitService struct {
 }
 
 func NewUnitService(db *sql.DB) UnitService {
-	return UnitService{db: db}
+	return UnitService{
+		db: db,
+	}
 }
 
 func (u *UnitService) Get(ID string) (milton.Unit, error) {
@@ -25,7 +27,7 @@ func (u *UnitService) Get(ID string) (milton.Unit, error) {
 		return nil, err
 	}
 
-	return transformUnit(unit), nil
+	return unit, nil
 }
 
 func (u *UnitService) Pair(mdns string, name string) error {
@@ -49,7 +51,7 @@ func (u *UnitService) Unpair(ID string) error {
 	return err
 }
 
-func (u *UnitService) All() ([]milton.Unit, error) {
+func (u *UnitService) All() (milton.UnitSlice, error) {
 	ctx := context.Background()
 
 	units, err := models.Units().All(ctx, u.db)
@@ -58,15 +60,5 @@ func (u *UnitService) All() ([]milton.Unit, error) {
 		return nil, err
 	}
 
-	mUnits := make([]milton.Unit, len(units))
-
-	for i, un := range units {
-		mUnits[i] = transformUnit(un)
-	}
-
-	return mUnits, nil
-}
-
-func transformUnit(unit *models.Unit) milton.Unit {
-	return NewUnit(unit)
+	return milton.UnitSlice(units), nil
 }

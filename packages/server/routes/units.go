@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	models "milton/generated_models"
@@ -20,9 +19,12 @@ type PairedUnitsResponse struct {
 }
 
 func GetPairedUnits(rw http.ResponseWriter, r *http.Request, db *sql.DB) {
-	var units models.UnitSlice
+	units, err := models.Units().All(context.Background(), db)
+	if err != nil {
+		helpers.ErrorResponse(rw, r, fmt.Errorf("couldn't get units: %w", err))
+		return
+	}
 
-	units, _ = models.Units().All(context.Background(), db)
 	helpers.SuccessResponse(rw, r, PairedUnitsResponse{
 		Units: units,
 	})
@@ -33,10 +35,8 @@ type PairUnitResponse struct {
 }
 
 func PairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	err := r.ParseForm()
-	if err != nil {
-		helpers.ErrorResponse(w, r, err)
-		log.Println("Error parsing form data", err)
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
@@ -54,8 +54,7 @@ func PairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		MDNS: mdns,
 	}
 
-	err = unit.Insert(context.Background(), db, boil.Infer())
-	if err != nil {
+	if err := unit.Insert(context.Background(), db, boil.Infer()); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("insertion failed: %w", err))
 		return
 	}
@@ -70,9 +69,8 @@ type UnpairUnitResponse struct {
 }
 
 func UnpairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	err := r.ParseForm()
-	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't parse form data %w", err))
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 

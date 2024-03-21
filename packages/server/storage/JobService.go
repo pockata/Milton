@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"milton"
 	models "milton/generated_models"
 
@@ -17,7 +18,9 @@ type JobService struct {
 }
 
 func NewJobService(db *sql.DB) *JobService {
-	return &JobService{db: db}
+	return &JobService{
+		db: db,
+	}
 }
 
 func (s *JobService) Get(ID string) (milton.Job, error) {
@@ -32,10 +35,10 @@ func (s *JobService) Get(ID string) (milton.Job, error) {
 	job.Unit().One(ctx, s.db)
 	job.FlowerPot().One(ctx, s.db)
 
-	return transformJob(job), nil
+	return job, nil
 }
 
-func (s *JobService) GetAll() ([]milton.Job, error) {
+func (s *JobService) GetAll() (milton.JobSlice, error) {
 	ctx := context.Background()
 	potRel := qm.Load(models.JobRels.FlowerPot)
 	unitRel := qm.Load(models.JobRels.Unit)
@@ -45,13 +48,7 @@ func (s *JobService) GetAll() ([]milton.Job, error) {
 		return nil, err
 	}
 
-	tjobs := make([]milton.Job, len(jobs))
-
-	for i, jb := range jobs {
-		tjobs[i] = transformJob(jb)
-	}
-
-	return tjobs, err
+	return milton.JobSlice(jobs), err
 }
 
 func (s *JobService) Remove(ID string) error {
@@ -71,19 +68,19 @@ func (s *JobService) Add(cfg milton.JobCreateConfig) (milton.Job, error) {
 	ctx := context.Background()
 
 	job := &models.Job{
-		ID:          cuid.New(),
+		ID:          fmt.Sprintf("j-%s", cuid.New()),
 		StartTime:   cfg.StartTime,
 		WaterQty:    cfg.WaterQty,
 		Status:      int64(cfg.Status),
-		UnitID:      cfg.Unit.ID(),
-		FlowerPotID: cfg.FlowerPot.ID(),
+		UnitID:      cfg.Unit.ID,
+		FlowerPotID: cfg.FlowerPot.ID,
 	}
 
 	if err := job.Insert(ctx, s.db, boil.Infer()); err != nil {
 		return nil, err
 	}
 
-	return transformJob(job), nil
+	return job, nil
 }
 
 func (s *JobService) Update(ID string, upd milton.JobUpdateConfig) (milton.Job, error) {
@@ -120,11 +117,5 @@ func (s *JobService) Update(ID string, upd milton.JobUpdateConfig) (milton.Job, 
 
 	_, err = job.Update(ctx, s.db, boil.Infer())
 
-	return transformJob(job), nil
-}
-
-func transformJob(job *models.Job) milton.Job {
-	return Job{
-		job: job,
-	}
+	return job, nil
 }

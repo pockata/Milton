@@ -19,8 +19,7 @@ type CreatePotResponse struct {
 }
 
 func AddPot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	err := r.ParseForm()
-	if err != nil {
+	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}

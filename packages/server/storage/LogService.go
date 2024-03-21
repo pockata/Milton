@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"milton"
 	models "milton/generated_models"
 
@@ -17,16 +18,18 @@ type LogService struct {
 }
 
 func NewLogService(db *sql.DB) *LogService {
-	return &LogService{db: db}
+	return &LogService{
+		db: db,
+	}
 }
 
 func (l *LogService) Add(cfg milton.LogCreateConfig) error {
 	ctx := context.Background()
 
 	log := &models.Log{
-		ID:      cuid.New(),
-		UnitID:  cfg.Unit.ID(),
-		JobID:   cfg.Job.ID(),
+		ID:      fmt.Sprintf("l-%s", cuid.New()),
+		UnitID:  cfg.Unit.ID,
+		JobID:   cfg.Job.ID,
 		Message: cfg.Message,
 	}
 
