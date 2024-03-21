@@ -9,8 +9,5 @@
 # unignore all dirs
 !*/
 
-# the main config file
-config.json
-
 sqlite.db
 sqlite.db-journal
