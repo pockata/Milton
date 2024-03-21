@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 
 	models "milton/generated_models"
@@ -90,8 +89,7 @@ type GetPotsResponse struct {
 }
 
 func GetPots(rw http.ResponseWriter, r *http.Request, db *sql.DB) {
-	vars := mux.Vars(r)
-	unitID := vars["UnitID"]
+	unitID := r.PathValue("UnitID")
 	if helpers.CheckParams(unitID) {
 		helpers.ErrorResponse(rw, r, fmt.Errorf("invalid unit ID: %v", unitID))
 		return

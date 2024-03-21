@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/lucsky/cuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -100,8 +99,7 @@ type GetJobResponse struct {
 }
 
 func GetJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	vars := mux.Vars(r)
-	jobID := vars["JobID"]
+	jobID := r.PathValue("JobID")
 
 	if !helpers.CheckParams(jobID) {
 		helpers.ErrorResponse(w, r, errors.New("invalid job ID"))

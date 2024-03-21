@@ -6,7 +6,6 @@ require (
 	github.com/ardanlabs/conf/v3 v3.1.7
 	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/friendsofgo/errors v0.9.2
-	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/mdns v1.0.5
 	github.com/lucsky/cuid v1.2.1
 	github.com/volatiletech/null/v8 v8.1.2
