@@ -74,6 +74,7 @@ func run(log milton.Logger) error {
 		App: app.NewApp(app.AppConfig{
 			FlowerPotService: storage.NewFlowerPotService(dbInstance),
 			UnitService:      storage.NewUnitService(dbInstance),
+			JobService:       storage.NewJobService(dbInstance),
 		}),
 	})
 
@@ -94,11 +95,11 @@ func run(log milton.Logger) error {
 	router.HandleFunc("POST /remove-pot", ctrl.RemovePot)
 
 	// watering jobs
-	router.HandleFunc("POST /add-job", w(routes.AddJob))
-	router.HandleFunc("POST /remove-job", w(routes.RemoveJob))
-	router.HandleFunc("POST /update-job", w(routes.UpdateJob))
-	router.HandleFunc("GET /get-jobs", w(routes.GetJobs))
-	router.HandleFunc("GET /get-job/{JobID}", w(routes.GetJob))
+	router.HandleFunc("POST /add-job", ctrl.AddJob)
+	router.HandleFunc("POST /remove-job", ctrl.RemoveJob)
+	router.HandleFunc("POST /update-job", ctrl.UpdateJob)
+	router.HandleFunc("GET /get-jobs", ctrl.GetJobs)
+	router.HandleFunc("GET /get-job/{JobID}", ctrl.GetJob)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Web.Host, cfg.Web.Port)
 	return http.ListenAndServe(addr, router)

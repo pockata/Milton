@@ -17,8 +17,8 @@ type JobService struct {
 	db *sql.DB
 }
 
-func NewJobService(db *sql.DB) *JobService {
-	return &JobService{
+func NewJobService(db *sql.DB) JobService {
+	return JobService{
 		db: db,
 	}
 }
@@ -65,18 +65,15 @@ func (s *JobService) Remove(ID string) error {
 }
 
 func (s *JobService) Add(cfg milton.JobCreateConfig) (milton.Job, error) {
-	ctx := context.Background()
-
 	job := &models.Job{
 		ID:          fmt.Sprintf("j-%s", cuid.New()),
 		StartTime:   cfg.StartTime,
 		WaterQty:    cfg.WaterQty,
-		Status:      int64(cfg.Status),
-		UnitID:      cfg.Unit.ID,
-		FlowerPotID: cfg.FlowerPot.ID,
+		UnitID:      cfg.UnitID,
+		FlowerPotID: cfg.FlowerPotID,
 	}
 
-	if err := job.Insert(ctx, s.db, boil.Infer()); err != nil {
+	if err := job.Insert(context.Background(), s.db, boil.Infer()); err != nil {
 		return nil, err
 	}
 
@@ -84,14 +81,11 @@ func (s *JobService) Add(cfg milton.JobCreateConfig) (milton.Job, error) {
 }
 
 func (s *JobService) Update(ID string, upd milton.JobUpdateConfig) (milton.Job, error) {
-	ctx := context.Background()
-	job, err := models.FindJob(ctx, s.db, ID)
+	job, err := models.FindJob(context.Background(), s.db, ID)
 
 	if err != nil {
 		return nil, err
 	}
-
-	// not too happy with this approach
 
 	// TODO: Test if boil.Infer() doesn't prevent updating in this case
 	hasChangedField := false
@@ -112,10 +106,14 @@ func (s *JobService) Update(ID string, upd milton.JobUpdateConfig) (milton.Job, 
 	}
 
 	if !hasChangedField {
-		return nil, errors.New("No values passed for updating")
+		return nil, errors.New("no values passed for updating")
 	}
 
-	_, err = job.Update(ctx, s.db, boil.Infer())
+	_, err = job.Update(context.Background(), s.db, boil.Infer())
+
+	if err != nil {
+		return nil, err
+	}
 
 	return job, nil
 }

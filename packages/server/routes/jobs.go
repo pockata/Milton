@@ -1,27 +1,21 @@
 package routes
 
 import (
-	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+	"milton"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/lucsky/cuid"
-	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
-
-	models "milton/generated_models"
 	"milton/helpers"
 )
 
 type AddJobResponse struct {
-	Job models.Job `json:"job"`
+	Job milton.Job `json:"job"`
 }
 
-func AddJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -30,34 +24,39 @@ func AddJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	unitID := r.PostForm.Get("UnitID")
 	potID := r.PostForm.Get("PotID")
 	startTimeStr := r.PostForm.Get("StartTime")
-	statusStr := r.PostForm.Get("Status")
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
-	if !helpers.ValidParams(unitID, potID, waterQtyStr, startTimeStr, statusStr) {
+	if !helpers.ValidParams(unitID, potID, waterQtyStr, startTimeStr) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
-	startTimeInt, _ := strconv.ParseInt(startTimeStr, 10, 64)
+	startTimeInt, err := strconv.ParseInt(startTimeStr, 10, 64)
+	if err != nil {
+		helpers.ErrorResponse(w, r, errors.New("invalid start time"))
+		return
+	}
+
 	startTime := time.Unix(startTimeInt, 0)
-	waterQty, _ := strconv.Atoi(waterQtyStr)
-	status, _ := strconv.Atoi(statusStr)
+
+	waterQty, err := strconv.Atoi(waterQtyStr)
+	if err != nil {
+		helpers.ErrorResponse(w, r, errors.New("invalid water quantity"))
+		return
+	}
 
 	if startTime.Before(time.Now()) {
 		helpers.ErrorResponse(w, r, errors.New("start time should be in the future"))
 		return
 	}
 
-	job := models.Job{
-		ID:          fmt.Sprintf("j-%s", cuid.New()),
+	job, err := c.app.AddJob(milton.JobCreateConfig{
 		UnitID:      unitID,
 		FlowerPotID: potID,
-		WaterQty:    int64(waterQty),
 		StartTime:   startTime,
-		Status:      int64(status),
-	}
-
-	if err := job.Insert(context.Background(), db, boil.Infer()); err != nil {
+		WaterQty:    int64(waterQty),
+	})
+	if err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't create job: %w", err))
 		return
 	}
@@ -71,7 +70,7 @@ type RemoveJobResponse struct {
 	Success bool `json:"success"`
 }
 
-func RemoveJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) RemoveJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -83,9 +82,8 @@ func RemoveJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	_, err := models.FindJob(context.Background(), db, ID)
-	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't find job: %w", err))
+	if err := c.app.RemoveJob(ID); err != nil {
+		helpers.ErrorResponse(w, r, err)
 		return
 	}
 
@@ -95,10 +93,10 @@ func RemoveJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 type GetJobResponse struct {
-	Job models.Job `json:"job"`
+	Job milton.Job `json:"job"`
 }
 
-func GetJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) GetJob(w http.ResponseWriter, r *http.Request) {
 	jobID := r.PathValue("JobID")
 
 	if !helpers.ValidParams(jobID) {
@@ -106,36 +104,25 @@ func GetJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	mods := []qm.QueryMod{
-		models.JobWhere.ID.EQ(jobID),
-		qm.Load(models.JobRels.FlowerPot),
-		qm.Load(models.JobRels.Unit),
-	}
-
-	job, err := models.Jobs(mods...).One(context.Background(), db)
+	job, err := c.app.GetJob(jobID)
 	if err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't get job: %w", err))
 		return
 	}
 
 	helpers.SuccessResponse(w, r, GetJobResponse{
-		Job: *job,
+		Job: job,
 	})
 }
 
 type GetJobsResponse struct {
-	Jobs models.JobSlice `json:"jobs"`
+	Jobs milton.JobSlice `json:"jobs"`
 }
 
-func GetJobs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	mods := []qm.QueryMod{
-		qm.Load(models.JobRels.FlowerPot),
-		qm.Load(models.JobRels.Unit),
-	}
-
-	jobs, err := models.Jobs(mods...).All(context.Background(), db)
+func (c Controller) GetJobs(w http.ResponseWriter, r *http.Request) {
+	jobs, err := c.app.GetAllJobs()
 	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't get jobs: %w", err))
+		helpers.ErrorResponse(w, r, err)
 		return
 	}
 
@@ -145,10 +132,10 @@ func GetJobs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 type UpdateJobResponse struct {
-	Job models.Job `json:"job"`
+	Job milton.Job `json:"job"`
 }
 
-func UpdateJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -164,32 +151,46 @@ func UpdateJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	startTimeInt, _ := strconv.ParseInt(startTimeStr, 10, 64)
+	startTimeInt, err := strconv.ParseInt(startTimeStr, 10, 64)
+	if err != nil {
+		helpers.ErrorResponse(w, r, errors.New("invalid start time"))
+		return
+	}
+
 	startTime := time.Unix(startTimeInt, 0)
-	waterQty, _ := strconv.Atoi(waterQtyStr)
-	status, _ := strconv.Atoi(statusStr)
+
+	waterQty, err := strconv.Atoi(waterQtyStr)
+	if err != nil {
+		helpers.ErrorResponse(w, r, errors.New("invalid water quantity"))
+		return
+	}
+
+	status, err := strconv.Atoi(statusStr)
+	if err != nil {
+		helpers.ErrorResponse(w, r, errors.New("invalid status"))
+		return
+	}
 
 	if startTime.Before(time.Now()) {
 		helpers.ErrorResponse(w, r, errors.New("start time should be in the future"))
 		return
 	}
 
-	job, err := models.FindJob(context.Background(), db, jobID)
+	jStatus := milton.JobStatus(status)
+	jWater := int64(waterQty)
+
+	job, err := c.app.UpdateJob(jobID, milton.JobUpdateConfig{
+		StartTime: &startTime,
+		Status:    &jStatus,
+		WaterQty:  &jWater,
+	})
+
 	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't get job: %w", err))
-		return
-	}
-
-	job.WaterQty = int64(waterQty)
-	job.StartTime = startTime
-	job.Status = int64(status)
-
-	if _, err := job.Update(context.Background(), db, boil.Infer()); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't update job: %w", err))
+		helpers.ErrorResponse(w, r, err)
 		return
 	}
 
 	helpers.SuccessResponse(w, r, UpdateJobResponse{
-		Job: *job,
+		Job: job,
 	})
 }

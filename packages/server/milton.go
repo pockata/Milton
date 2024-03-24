@@ -63,11 +63,10 @@ type JobService interface {
 }
 
 type JobCreateConfig struct {
-	Unit      Unit
-	FlowerPot FlowerPot
-	StartTime time.Time
-	WaterQty  int64
-	Status    JobStatus
+	UnitID      string
+	FlowerPotID string
+	StartTime   time.Time
+	WaterQty    int64
 }
 
 type LogService interface {
