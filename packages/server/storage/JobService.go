@@ -48,7 +48,7 @@ func (s *JobService) GetAll() (milton.JobSlice, error) {
 		return nil, err
 	}
 
-	return milton.JobSlice(jobs), err
+	return jobs, err
 }
 
 func (s *JobService) Remove(ID string) error {

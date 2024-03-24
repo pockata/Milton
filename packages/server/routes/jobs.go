@@ -33,7 +33,7 @@ func AddJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	statusStr := r.PostForm.Get("Status")
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
-	if !helpers.CheckParams(unitID, potID, waterQtyStr, startTimeStr, statusStr) {
+	if !helpers.ValidParams(unitID, potID, waterQtyStr, startTimeStr, statusStr) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
@@ -78,7 +78,7 @@ func RemoveJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	ID := r.Form.Get("ID")
-	if !helpers.CheckParams(ID) {
+	if !helpers.ValidParams(ID) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
@@ -101,7 +101,7 @@ type GetJobResponse struct {
 func GetJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	jobID := r.PathValue("JobID")
 
-	if !helpers.CheckParams(jobID) {
+	if !helpers.ValidParams(jobID) {
 		helpers.ErrorResponse(w, r, errors.New("invalid job ID"))
 		return
 	}
@@ -159,7 +159,7 @@ func UpdateJob(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	statusStr := r.PostForm.Get("Status")
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
-	if !helpers.CheckParams(jobID, waterQtyStr, startTimeStr, statusStr) {
+	if !helpers.ValidParams(jobID, waterQtyStr, startTimeStr, statusStr) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}

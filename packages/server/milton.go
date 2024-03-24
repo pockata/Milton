@@ -21,17 +21,19 @@ type UnitService interface {
 	Get(string) (Unit, error)
 }
 
-type Unit *models.Unit
-type UnitSlice models.UnitSlice
+type Unit = *models.Unit
+type UnitSlice = models.UnitSlice
 
 type FlowerPotService interface {
 	Add(string, Unit) (FlowerPot, error)
 	Remove(string) error
+	Get(string) (FlowerPot, error)
 	All() (FlowerPotSlice, error)
+	Update(FlowerPot) error
 }
 
-type FlowerPot *models.FlowerPot
-type FlowerPotSlice models.FlowerPotSlice
+type FlowerPot = *models.FlowerPot
+type FlowerPotSlice = models.FlowerPotSlice
 
 type JobStatus uint8
 
@@ -42,8 +44,8 @@ const (
 	Error
 )
 
-type Job *models.Job
-type JobSlice models.JobSlice
+type Job = *models.Job
+type JobSlice = models.JobSlice
 
 type JobUpdateConfig struct {
 	StartTime *time.Time

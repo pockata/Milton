@@ -1,23 +1,19 @@
 package routes
 
 import (
-	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+	"milton"
 	"net/http"
 
-	"github.com/volatiletech/sqlboiler/v4/boil"
-
-	models "milton/generated_models"
 	"milton/helpers"
 )
 
 type CreatePotResponse struct {
-	Pot models.FlowerPot `json:"flowerPot"`
+	Pot milton.FlowerPot `json:"flowerPot"`
 }
 
-func AddPot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) AddPot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -26,24 +22,14 @@ func AddPot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	unitID := r.PostForm.Get("UnitID")
 	name := r.PostForm.Get("Name")
 
-	if !helpers.CheckParams(name, unitID) {
+	if !helpers.ValidParams(name, unitID) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
-	unit, err := models.FindUnit(context.Background(), db, unitID)
+	pot, err := c.app.AddFlowerPot(name, unitID)
 	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't find unit: %w", err))
-		return
-	}
-
-	pot := models.FlowerPot{
-		UnitID: unit.ID,
-		Name:   name,
-	}
-
-	if err := pot.Insert(context.Background(), db, boil.Infer()); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error inserting pot: %w", err))
+		helpers.ErrorResponse(w, r, err)
 		return
 	}
 
@@ -56,26 +42,20 @@ type RemovePotResponse struct {
 	Success bool `json:"success"`
 }
 
-func RemovePot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) RemovePot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
 	ID := r.Form.Get("ID")
-	if !helpers.CheckParams(ID) {
+	if !helpers.ValidParams(ID) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
-	pot, err := models.FindFlowerPot(context.Background(), db, ID)
-	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error finding flower pot: %w", err))
-		return
-	}
-
-	if _, err := pot.Delete(context.Background(), db); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error deleting flower pot: %w", err))
+	if err := c.app.RemoveFlowerPot(ID); err != nil {
+		helpers.ErrorResponse(w, r, err)
 		return
 	}
 
@@ -85,30 +65,25 @@ func RemovePot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 type GetPotsResponse struct {
-	Pots models.FlowerPotSlice `json:"flowerPots"`
+	FlowerPots milton.FlowerPotSlice `json:"flowerPots"`
 }
 
-func GetPots(rw http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) GetPots(rw http.ResponseWriter, r *http.Request) {
 	unitID := r.PathValue("UnitID")
-	if helpers.CheckParams(unitID) {
+
+	if !helpers.ValidParams(unitID) {
 		helpers.ErrorResponse(rw, r, fmt.Errorf("invalid unit ID: %v", unitID))
 		return
 	}
 
-	unit, err := models.FindUnit(context.Background(), db, unitID)
+	pots, err := c.app.GetFlowerPots(unitID)
 	if err != nil {
-		helpers.ErrorResponse(rw, r, fmt.Errorf("couldn't find unit id: %w", err))
-		return
-	}
-
-	pots, err := unit.UnitFlowerPots().All(context.Background(), db)
-	if err != nil {
-		helpers.ErrorResponse(rw, r, fmt.Errorf("couldn't get unit pots: %w", err))
+		helpers.ErrorResponse(rw, r, err)
 		return
 	}
 
 	helpers.SuccessResponse(rw, r, GetPotsResponse{
-		Pots: pots,
+		FlowerPots: pots,
 	})
 }
 
@@ -116,7 +91,7 @@ type UpdatePotResponse struct {
 	Success bool `json:"success"`
 }
 
-func UpdatePot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) RenamePot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -124,24 +99,14 @@ func UpdatePot(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	potID := r.PostForm.Get("PotID")
 	name := r.PostForm.Get("Name")
-	UnitID := r.PostForm.Get("UnitID")
 
-	if !helpers.CheckParams(potID, name, UnitID) {
+	if !helpers.ValidParams(potID, name) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
-	pot, err := models.FindFlowerPot(context.Background(), db, potID)
-	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't find pot: %w", err))
-		return
-	}
-
-	pot.Name = name
-	pot.UnitID = UnitID
-
-	if _, err := pot.Update(context.Background(), db, boil.Infer()); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't update pot: %w", err))
+	if err := c.app.RenameFlowerPot(potID, name); err != nil {
+		helpers.ErrorResponse(w, r, err)
 		return
 	}
 

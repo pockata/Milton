@@ -47,7 +47,7 @@ func ErrorResponse(rw http.ResponseWriter, r *http.Request, error error) {
 	ApiResponse(rw, r, http.StatusBadRequest, resp)
 }
 
-func CheckParams(args ...string) bool {
+func ValidParams(args ...string) bool {
 	for _, arg := range args {
 		if arg == "" {
 			return false

@@ -43,7 +43,7 @@ func PairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	mdns := r.PostForm.Get("MDNS")
 	name := r.PostForm.Get("Name")
 
-	if !helpers.CheckParams(mdns, name) {
+	if !helpers.ValidParams(mdns, name) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
@@ -75,7 +75,7 @@ func UnpairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	ID := r.Form.Get("ID")
-	if !helpers.CheckParams(ID) {
+	if !helpers.ValidParams(ID) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}

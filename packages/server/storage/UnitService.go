@@ -30,6 +30,15 @@ func (u *UnitService) Get(ID string) (milton.Unit, error) {
 	return unit, nil
 }
 
+func (u *UnitService) GetPots(unit milton.Unit) (milton.FlowerPotSlice, error) {
+	pots, err := unit.UnitFlowerPots().All(context.Background(), u.db)
+	if err != nil {
+		return nil, err
+	}
+
+	return pots, nil
+}
+
 func (u *UnitService) Pair(mdns string, name string) error {
 	entry := &models.Unit{MDNS: mdns, Name: name}
 	ctx := context.Background()
@@ -60,5 +69,5 @@ func (u *UnitService) All() (milton.UnitSlice, error) {
 		return nil, err
 	}
 
-	return milton.UnitSlice(units), nil
+	return units, nil
 }

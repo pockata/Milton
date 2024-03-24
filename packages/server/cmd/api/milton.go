@@ -9,6 +9,7 @@ import (
 	"github.com/ardanlabs/conf/v3"
 
 	"milton"
+	"milton/app"
 	"milton/foundation"
 	"milton/helpers"
 	"milton/routes"
@@ -69,11 +70,15 @@ func run(log milton.Logger) error {
 		return fmt.Errorf("couldn't connect to the database: %w", err)
 	}
 
+	ctrl := routes.NewController(routes.ControllerConfig{
+		App: app.NewApp(app.AppConfig{
+			FlowerPotService: storage.NewFlowerPotService(dbInstance),
+			UnitService:      storage.NewUnitService(dbInstance),
+		}),
+	})
+
 	router := http.NewServeMux()
 	w := helpers.CreateAPIWrapHandler(dbInstance)
-
-	// // router := mux.NewRouter().StrictSlash(true)
-	// api := router.PathPrefix("/v1/").Subrouter()
 
 	router.HandleFunc("GET /query-active-units", w(routes.QueryActiveUnits))
 
@@ -83,10 +88,10 @@ func run(log milton.Logger) error {
 	router.HandleFunc("POST /unpair-unit", w(routes.UnpairUnit))
 
 	// pots
-	router.HandleFunc("POST /add-pot", w(routes.AddPot))
-	router.HandleFunc("GET /get-pots/{UnitID}", w(routes.GetPots))
-	router.HandleFunc("POST /update-pot", w(routes.UpdatePot))
-	router.HandleFunc("POST /remove-pot", w(routes.RemovePot))
+	router.HandleFunc("POST /add-pot", ctrl.AddPot)
+	router.HandleFunc("GET /get-pots/{UnitID}", ctrl.GetPots)
+	router.HandleFunc("POST /rename-pot", ctrl.RenamePot)
+	router.HandleFunc("POST /remove-pot", ctrl.RemovePot)
 
 	// watering jobs
 	router.HandleFunc("POST /add-job", w(routes.AddJob))

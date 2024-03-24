@@ -15,22 +15,20 @@ type FlowerPotService struct {
 	db *sql.DB
 }
 
-func NewFlowerPotService(db *sql.DB) *FlowerPotService {
-	return &FlowerPotService{
+func NewFlowerPotService(db *sql.DB) FlowerPotService {
+	return FlowerPotService{
 		db: db,
 	}
 }
 
 func (p *FlowerPotService) Add(name string, unit milton.Unit) (milton.FlowerPot, error) {
-	ctx := context.Background()
-
 	pot := models.FlowerPot{
 		ID:     fmt.Sprintf("fp-%s", cuid.New()),
 		Name:   name,
 		UnitID: unit.ID,
 	}
 
-	if err := pot.Insert(ctx, p.db, boil.Infer()); err != nil {
+	if err := pot.Insert(context.Background(), p.db, boil.Infer()); err != nil {
 		return nil, err
 	}
 
@@ -38,27 +36,39 @@ func (p *FlowerPotService) Add(name string, unit milton.Unit) (milton.FlowerPot,
 }
 
 func (p *FlowerPotService) Remove(ID string) error {
-	ctx := context.Background()
-
-	pot, err := models.FindFlowerPot(ctx, p.db, ID)
+	pot, err := models.FindFlowerPot(context.Background(), p.db, ID)
 
 	if err != nil {
 		return err
 	}
 
-	_, err = pot.Delete(ctx, p.db)
+	_, err = pot.Delete(context.Background(), p.db)
 
 	return err
 }
 
 func (p *FlowerPotService) All() (milton.FlowerPotSlice, error) {
-	ctx := context.Background()
-
-	pots, err := models.FlowerPots().All(ctx, p.db)
+	pots, err := models.FlowerPots().All(context.Background(), p.db)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return milton.FlowerPotSlice(pots), nil
+	return pots, nil
+}
+
+func (p *FlowerPotService) Get(ID string) (milton.FlowerPot, error) {
+	pot, err := models.FindFlowerPot(context.Background(), p.db, ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pot, err
+}
+
+func (p *FlowerPotService) Update(pot milton.FlowerPot) error {
+	_, err := pot.Update(context.Background(), p.db, boil.Infer())
+
+	return err
 }
