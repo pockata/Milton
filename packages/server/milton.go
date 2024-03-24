@@ -27,7 +27,7 @@ type UnitSlice = models.UnitSlice
 type FlowerPotService interface {
 	Add(string, Unit) (FlowerPot, error)
 	RemoveByID(string) error
-	Remove(Unit) error
+	Remove(FlowerPot) error
 	Get(string) (FlowerPot, error)
 	All() (FlowerPotSlice, error)
 	Update(FlowerPot) error
@@ -59,7 +59,7 @@ type JobService interface {
 	GetAll() (JobSlice, error)
 	Remove(string) error
 	Add(JobCreateConfig) (Job, error)
-	Update(JobUpdateConfig) (Job, error)
+	Update(string, JobUpdateConfig) (Job, error)
 }
 
 type JobCreateConfig struct {

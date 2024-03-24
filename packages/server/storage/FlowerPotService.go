@@ -21,7 +21,7 @@ func NewFlowerPotService(db *sql.DB) FlowerPotService {
 	}
 }
 
-func (p *FlowerPotService) Add(name string, unit milton.Unit) (milton.FlowerPot, error) {
+func (p FlowerPotService) Add(name string, unit milton.Unit) (milton.FlowerPot, error) {
 	pot := models.FlowerPot{
 		ID:     fmt.Sprintf("fp-%s", cuid.New()),
 		Name:   name,
@@ -35,7 +35,7 @@ func (p *FlowerPotService) Add(name string, unit milton.Unit) (milton.FlowerPot,
 	return &pot, nil
 }
 
-func (p *FlowerPotService) RemoveByID(ID string) error {
+func (p FlowerPotService) RemoveByID(ID string) error {
 	pot, err := models.FindFlowerPot(context.Background(), p.db, ID)
 	if err != nil {
 		return err
@@ -44,13 +44,13 @@ func (p *FlowerPotService) RemoveByID(ID string) error {
 	return p.Remove(pot)
 }
 
-func (p *FlowerPotService) Remove(pot milton.FlowerPot) error {
+func (p FlowerPotService) Remove(pot milton.FlowerPot) error {
 	_, err := pot.Delete(context.Background(), p.db)
 
 	return err
 }
 
-func (p *FlowerPotService) All() (milton.FlowerPotSlice, error) {
+func (p FlowerPotService) All() (milton.FlowerPotSlice, error) {
 	pots, err := models.FlowerPots().All(context.Background(), p.db)
 
 	if err != nil {
@@ -60,7 +60,7 @@ func (p *FlowerPotService) All() (milton.FlowerPotSlice, error) {
 	return pots, nil
 }
 
-func (p *FlowerPotService) Get(ID string) (milton.FlowerPot, error) {
+func (p FlowerPotService) Get(ID string) (milton.FlowerPot, error) {
 	pot, err := models.FindFlowerPot(context.Background(), p.db, ID)
 
 	if err != nil {
@@ -70,7 +70,7 @@ func (p *FlowerPotService) Get(ID string) (milton.FlowerPot, error) {
 	return pot, err
 }
 
-func (p *FlowerPotService) Update(pot milton.FlowerPot) error {
+func (p FlowerPotService) Update(pot milton.FlowerPot) error {
 	_, err := pot.Update(context.Background(), p.db, boil.Infer())
 
 	return err

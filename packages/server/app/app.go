@@ -1,19 +1,17 @@
 package app
 
-import (
-	"milton/storage"
-)
+import "milton"
 
 type App struct {
-	flowerPotService storage.FlowerPotService
-	unitService      storage.UnitService
-	jobService       storage.JobService
+	flowerPotService milton.FlowerPotService
+	unitService      milton.UnitService
+	jobService       milton.JobService
 }
 
 type AppConfig struct {
-	FlowerPotService storage.FlowerPotService
-	UnitService      storage.UnitService
-	JobService       storage.JobService
+	FlowerPotService milton.FlowerPotService
+	UnitService      milton.UnitService
+	JobService       milton.JobService
 }
 
 func NewApp(cfg AppConfig) App {

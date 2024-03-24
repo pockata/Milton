@@ -23,7 +23,7 @@ func NewJobService(db *sql.DB) JobService {
 	}
 }
 
-func (s *JobService) Get(ID string) (milton.Job, error) {
+func (s JobService) Get(ID string) (milton.Job, error) {
 	ctx := context.Background()
 	job, err := models.FindJob(ctx, s.db, ID)
 
@@ -38,7 +38,7 @@ func (s *JobService) Get(ID string) (milton.Job, error) {
 	return job, nil
 }
 
-func (s *JobService) GetAll() (milton.JobSlice, error) {
+func (s JobService) GetAll() (milton.JobSlice, error) {
 	ctx := context.Background()
 	potRel := qm.Load(models.JobRels.FlowerPot)
 	unitRel := qm.Load(models.JobRels.Unit)
@@ -51,7 +51,7 @@ func (s *JobService) GetAll() (milton.JobSlice, error) {
 	return jobs, err
 }
 
-func (s *JobService) Remove(ID string) error {
+func (s JobService) Remove(ID string) error {
 	ctx := context.Background()
 	job, err := models.FindJob(ctx, s.db, ID, models.JobColumns.ID)
 
@@ -64,7 +64,7 @@ func (s *JobService) Remove(ID string) error {
 	return err
 }
 
-func (s *JobService) Add(cfg milton.JobCreateConfig) (milton.Job, error) {
+func (s JobService) Add(cfg milton.JobCreateConfig) (milton.Job, error) {
 	job := &models.Job{
 		ID:          fmt.Sprintf("j-%s", cuid.New()),
 		StartTime:   cfg.StartTime,
@@ -80,7 +80,7 @@ func (s *JobService) Add(cfg milton.JobCreateConfig) (milton.Job, error) {
 	return job, nil
 }
 
-func (s *JobService) Update(ID string, upd milton.JobUpdateConfig) (milton.Job, error) {
+func (s JobService) Update(ID string, upd milton.JobUpdateConfig) (milton.Job, error) {
 	job, err := models.FindJob(context.Background(), s.db, ID)
 
 	if err != nil {

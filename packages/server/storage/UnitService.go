@@ -21,7 +21,7 @@ func NewUnitService(db *sql.DB) UnitService {
 	}
 }
 
-func (u *UnitService) Get(ID string) (milton.Unit, error) {
+func (u UnitService) Get(ID string) (milton.Unit, error) {
 	unit, err := models.FindUnit(context.Background(), u.db, ID)
 	if err != nil {
 		return nil, err
@@ -30,11 +30,11 @@ func (u *UnitService) Get(ID string) (milton.Unit, error) {
 	return unit, nil
 }
 
-func (u *UnitService) GetPots(unit milton.Unit) (milton.FlowerPotSlice, error) {
+func (u UnitService) GetPots(unit milton.Unit) (milton.FlowerPotSlice, error) {
 	return unit.UnitFlowerPots().All(context.Background(), u.db)
 }
 
-func (u *UnitService) Pair(name string, mdns string) (milton.Unit, error) {
+func (u UnitService) Pair(name string, mdns string) (milton.Unit, error) {
 	unit := &models.Unit{
 		ID:   fmt.Sprintf("u-%s", cuid.New()),
 		Name: name,
@@ -49,7 +49,7 @@ func (u *UnitService) Pair(name string, mdns string) (milton.Unit, error) {
 	return unit, nil
 }
 
-func (u *UnitService) Unpair(ID string) error {
+func (u UnitService) Unpair(ID string) error {
 	unit, err := models.FindUnit(context.Background(), u.db, ID)
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func (u *UnitService) Unpair(ID string) error {
 	return err
 }
 
-func (u *UnitService) All() (milton.UnitSlice, error) {
+func (u UnitService) All() (milton.UnitSlice, error) {
 	units, err := models.Units().All(context.Background(), u.db)
 
 	if err != nil {
