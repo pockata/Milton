@@ -49,7 +49,7 @@ func (a App) RenameFlowerPot(potID string, name string) error {
 }
 
 func (a App) RemoveFlowerPot(potID string) error {
-	if err := a.flowerPotService.Remove(potID); err != nil {
+	if err := a.flowerPotService.RemoveByID(potID); err != nil {
 		return fmt.Errorf("couldn't remove flower pot: %w", err)
 	}
 

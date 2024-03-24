@@ -15,7 +15,7 @@ type Logger interface {
 }
 
 type UnitService interface {
-	Pair(string, string) error
+	Pair(string, string) (Unit, error)
 	Unpair(string) error
 	All() (UnitSlice, error)
 	Get(string) (Unit, error)
@@ -26,7 +26,8 @@ type UnitSlice = models.UnitSlice
 
 type FlowerPotService interface {
 	Add(string, Unit) (FlowerPot, error)
-	Remove(string) error
+	RemoveByID(string) error
+	Remove(Unit) error
 	Get(string) (FlowerPot, error)
 	All() (FlowerPotSlice, error)
 	Update(FlowerPot) error

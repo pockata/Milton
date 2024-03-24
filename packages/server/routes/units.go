@@ -1,27 +1,22 @@
 package routes
 
 import (
-	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+	"milton"
 	"net/http"
 
-	models "milton/generated_models"
 	"milton/helpers"
-
-	"github.com/lucsky/cuid"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type PairedUnitsResponse struct {
-	Units models.UnitSlice `json:"units"`
+	Units milton.UnitSlice `json:"units"`
 }
 
-func GetPairedUnits(rw http.ResponseWriter, r *http.Request, db *sql.DB) {
-	units, err := models.Units().All(context.Background(), db)
+func (c Controller) GetPairedUnits(rw http.ResponseWriter, r *http.Request) {
+	units, err := c.app.GetAllUnits()
 	if err != nil {
-		helpers.ErrorResponse(rw, r, fmt.Errorf("couldn't get units: %w", err))
+		helpers.ErrorResponse(rw, r, err)
 		return
 	}
 
@@ -31,10 +26,10 @@ func GetPairedUnits(rw http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 type PairUnitResponse struct {
-	Unit models.Unit `json:"unit"`
+	Unit milton.Unit `json:"unit"`
 }
 
-func PairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) PairUnit(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -43,19 +38,14 @@ func PairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	mdns := r.PostForm.Get("MDNS")
 	name := r.PostForm.Get("Name")
 
-	if !helpers.ValidParams(mdns, name) {
+	if !helpers.ValidParams(name, mdns) {
 		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
-	unit := models.Unit{
-		ID:   fmt.Sprintf("u-%s", cuid.New()),
-		Name: name,
-		MDNS: mdns,
-	}
-
-	if err := unit.Insert(context.Background(), db, boil.Infer()); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("insertion failed: %w", err))
+	unit, err := c.app.PairUnit(name, mdns)
+	if err != nil {
+		helpers.ErrorResponse(w, r, err)
 		return
 	}
 
@@ -68,7 +58,7 @@ type UnpairUnitResponse struct {
 	Success bool `json:"success"`
 }
 
-func UnpairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (c Controller) UnpairUnit(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -80,15 +70,8 @@ func UnpairUnit(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	unit, err := models.FindUnit(context.Background(), db, ID)
-
-	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't find unit to delete: %w", err))
-		return
-	}
-
-	if _, err := unit.Delete(context.Background(), db); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't delete unit: %w", err))
+	if err := c.app.UnpairUnit(ID); err != nil {
+		helpers.ErrorResponse(w, r, err)
 		return
 	}
 

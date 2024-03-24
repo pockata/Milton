@@ -35,14 +35,17 @@ func (p *FlowerPotService) Add(name string, unit milton.Unit) (milton.FlowerPot,
 	return &pot, nil
 }
 
-func (p *FlowerPotService) Remove(ID string) error {
+func (p *FlowerPotService) RemoveByID(ID string) error {
 	pot, err := models.FindFlowerPot(context.Background(), p.db, ID)
-
 	if err != nil {
 		return err
 	}
 
-	_, err = pot.Delete(context.Background(), p.db)
+	return p.Remove(pot)
+}
+
+func (p *FlowerPotService) Remove(pot milton.FlowerPot) error {
+	_, err := pot.Delete(context.Background(), p.db)
 
 	return err
 }

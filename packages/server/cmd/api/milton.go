@@ -83,9 +83,9 @@ func run(log milton.Logger) error {
 	router.HandleFunc("GET /query-active-units", w(routes.QueryActiveUnits))
 
 	// units
-	router.HandleFunc("GET /get-paired-units", w(routes.GetPairedUnits))
-	router.HandleFunc("POST /pair-unit", w(routes.PairUnit))
-	router.HandleFunc("POST /unpair-unit", w(routes.UnpairUnit))
+	router.HandleFunc("GET /get-paired-units", ctrl.GetPairedUnits)
+	router.HandleFunc("POST /pair-unit", ctrl.PairUnit)
+	router.HandleFunc("POST /unpair-unit", ctrl.UnpairUnit)
 
 	// pots
 	router.HandleFunc("POST /add-pot", ctrl.AddPot)

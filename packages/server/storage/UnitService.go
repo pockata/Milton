@@ -3,9 +3,11 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"milton"
 	models "milton/generated_models"
 
+	"github.com/lucsky/cuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
@@ -20,9 +22,7 @@ func NewUnitService(db *sql.DB) UnitService {
 }
 
 func (u *UnitService) Get(ID string) (milton.Unit, error) {
-	ctx := context.Background()
-	unit, err := models.FindUnit(ctx, u.db, ID)
-
+	unit, err := models.FindUnit(context.Background(), u.db, ID)
 	if err != nil {
 		return nil, err
 	}
@@ -31,39 +31,37 @@ func (u *UnitService) Get(ID string) (milton.Unit, error) {
 }
 
 func (u *UnitService) GetPots(unit milton.Unit) (milton.FlowerPotSlice, error) {
-	pots, err := unit.UnitFlowerPots().All(context.Background(), u.db)
+	return unit.UnitFlowerPots().All(context.Background(), u.db)
+}
+
+func (u *UnitService) Pair(name string, mdns string) (milton.Unit, error) {
+	unit := &models.Unit{
+		ID:   fmt.Sprintf("u-%s", cuid.New()),
+		Name: name,
+		MDNS: mdns,
+	}
+
+	err := unit.Insert(context.Background(), u.db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
 
-	return pots, nil
-}
-
-func (u *UnitService) Pair(mdns string, name string) error {
-	entry := &models.Unit{MDNS: mdns, Name: name}
-	ctx := context.Background()
-
-	return entry.Insert(ctx, u.db, boil.Infer())
+	return unit, nil
 }
 
 func (u *UnitService) Unpair(ID string) error {
-	ctx := context.Background()
-
-	unit, err := models.FindUnit(ctx, u.db, ID)
-
+	unit, err := models.FindUnit(context.Background(), u.db, ID)
 	if err != nil {
 		return err
 	}
 
-	_, err = unit.Delete(ctx, u.db)
+	_, err = unit.Delete(context.Background(), u.db)
 
 	return err
 }
 
 func (u *UnitService) All() (milton.UnitSlice, error) {
-	ctx := context.Background()
-
-	units, err := models.Units().All(ctx, u.db)
+	units, err := models.Units().All(context.Background(), u.db)
 
 	if err != nil {
 		return nil, err
