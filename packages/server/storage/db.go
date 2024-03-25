@@ -2,14 +2,16 @@ package storage
 
 import (
 	"database/sql"
+	"fmt"
 	"milton"
 	"os"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type DB struct {
-	instance *sql.DB
-	SQLFile  string
-	log      milton.Logger
+	SQLFile string
+	log     milton.Logger
 }
 
 func NewDB(SQLFile string, log milton.Logger) *DB {
@@ -20,22 +22,15 @@ func NewDB(SQLFile string, log milton.Logger) *DB {
 }
 
 func (db *DB) Connect() (*sql.DB, error) {
-	dsn := ""
-
 	// create & setup the DB if it hasn't been initialized
 	if _, err := os.Stat(db.SQLFile); os.IsNotExist(err) {
 		db._create()
 	}
 
+	dsn := fmt.Sprintf("file:%s", db.SQLFile)
+
 	// Open handle to database like normal
-	var err error
-	db.instance, err = sql.Open("sqlite3", dsn)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return db.instance, nil
+	return sql.Open("sqlite3", dsn)
 }
 
 func (db *DB) _create() {
