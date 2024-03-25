@@ -11,7 +11,7 @@ type StandardLogger struct {
 
 func NewStandardLogger(name string) StandardLogger {
 	return StandardLogger{
-		log: slog.New(slog.NewTextHandler(os.Stdout, nil)).With("caller", name),
+		log: slog.New(slog.NewTextHandler(os.Stdout, nil)).With("service", name),
 	}
 }
 
