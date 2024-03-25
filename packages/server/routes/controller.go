@@ -2,21 +2,25 @@ package routes
 
 import (
 	"encoding/json"
+	"milton"
 	"milton/app"
 	"net/http"
 )
 
 type Controller struct {
 	app app.App
+	log milton.Logger
 }
 
 type ControllerConfig struct {
-	App app.App
+	App    app.App
+	Logger milton.Logger
 }
 
 func NewController(cfg ControllerConfig) Controller {
 	return Controller{
 		app: cfg.App,
+		log: cfg.Logger,
 	}
 }
 
@@ -47,6 +51,7 @@ func (c Controller) ErrorResponse(rw http.ResponseWriter, r *http.Request, errs 
 	errStrs := make([]string, 0, len(errs))
 	for _, e := range errs {
 		errStrs = append(errStrs, e.Error())
+		c.log.Error(e.Error())
 	}
 
 	resp := APIResponseType{

@@ -72,6 +72,7 @@ func run(log milton.Logger) error {
 	}
 
 	ctrl := routes.NewController(routes.ControllerConfig{
+		Logger: log,
 		App: app.NewApp(app.AppConfig{
 			FlowerPotService: storage.NewFlowerPotService(dbInstance),
 			UnitService:      storage.NewUnitService(dbInstance),
