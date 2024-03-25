@@ -40,13 +40,30 @@ schema-format: prisma-check
 boiler-check:
 	@which sqlboiler sqlboiler-sqlite3 > /dev/null 2>&1 || (\
 		echo "SQLBoiler not found... installing" && \
-		go install github.com/volatiletech/sqlboiler/v4@latest \
+		go install github.com/volatiletech/sqlboiler/v4@latest && \
 		go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-sqlite3@latest \
 	)
 
 orm-generate: boiler-check
 	@echo -e "Generating ORM...\n"
+	# TODO: extract dbname to an ENV variable default and override with SERVER_DB_FILE from .env
 	@cd "${SRV}" && SQLITE3_DBNAME="${SRV}/sqlite.db" $(BOILER) sqlite3
+
+build-server:
+	@cd "${SRV}" && go build -ldflags "-X milton.Build=${VERSION}" -o ./bin/milton ./cmd/api/milton.go
+
+run-server: build-server
+	@cd "${SRV}" && ./bin/milton
 
 go-tidy:
 	@cd "${SRV}" && go mod tidy
+
+server-watcher-check:
+	@which gow > /dev/null 2>&1 || (\
+		echo "GOW not found... installing" && \
+		go install github.com/mitranim/gow@latest \
+	)
+
+dev: server-watcher-check
+	@cd "${SRV}" && gow -c run ./cmd/api/milton.go
+
