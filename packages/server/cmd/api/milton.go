@@ -29,13 +29,14 @@ func main() {
 func run(log milton.Logger) error {
 	cfg := struct {
 		conf.Version
+
 		Web struct {
 			Host string `conf:"default:0.0.0.0,env:HOST"`
 			Port int    `conf:"default:8888,env:PORT"`
 		}
 
 		DB struct {
-			File string `conf:"default:./sqlite.db"`
+			File string `conf:"default:sqlite.db,env:DB_FILE"`
 		}
 	}{
 		Version: conf.Version{

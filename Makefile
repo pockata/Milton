@@ -12,7 +12,7 @@ ifndef VERSION
 	VERSION := $(shell git rev-parse --short HEAD)
 endif
 
-PRISMA:=prisma-client-go
+PRISMA:=PRISMA_DB_FILE="file:../${DB_FILE}" prisma-client-go
 BOILER:=sqlboiler
 SRV:=$(shell realpath "packages/server")
 
@@ -46,8 +46,7 @@ boiler-check:
 
 orm-generate: boiler-check
 	@echo -e "Generating ORM...\n"
-	# TODO: extract dbname to an ENV variable default and override with SERVER_DB_FILE from .env
-	@cd "${SRV}" && SQLITE3_DBNAME="${SRV}/sqlite.db" $(BOILER) sqlite3
+	@cd "${SRV}" && SQLITE3_DBNAME="${SRV}/${DB_FILE}" $(BOILER) sqlite3
 
 build-server:
 	@cd "${SRV}" && go build -ldflags "-X milton.Build=${VERSION}" -o ./bin/milton ./cmd/api/milton.go
