@@ -9,6 +9,7 @@ import (
 
 	"github.com/lucsky/cuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type FlowerPotService struct {
@@ -74,4 +75,17 @@ func (p FlowerPotService) Update(pot milton.FlowerPot) error {
 	_, err := pot.Update(context.Background(), p.db, boil.Infer())
 
 	return err
+}
+
+func (p FlowerPotService) GetPotsForUnit(unitID string) (milton.FlowerPotSlice, error) {
+	mods := []qm.QueryMod{
+		models.FlowerPotWhere.UnitID.EQ(unitID),
+	}
+	pots, err := models.FlowerPots(mods...).All(context.Background(), p.db)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pots, nil
 }

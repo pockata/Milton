@@ -29,6 +29,7 @@ type FlowerPotService interface {
 	RemoveByID(string) error
 	Remove(FlowerPot) error
 	Get(string) (FlowerPot, error)
+	GetPotsForUnit(string) (FlowerPotSlice, error)
 	All() (FlowerPotSlice, error)
 	Update(FlowerPot) error
 }

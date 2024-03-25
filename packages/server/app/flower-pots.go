@@ -25,7 +25,7 @@ func (a App) GetFlowerPots(unitID string) (milton.FlowerPotSlice, error) {
 		return nil, fmt.Errorf("couldn't find unit: %w", err)
 	}
 
-	pots, err := a.unitService.GetPots(unit)
+	pots, err := a.flowerPotService.GetPotsForUnit(unit.ID)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get flower pots: %w", err)
 	}

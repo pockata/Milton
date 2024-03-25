@@ -29,7 +29,7 @@ func (a App) UnpairUnit(ID string) error {
 		return fmt.Errorf("couldn't find unit to delete: %w", err)
 	}
 
-	pots, err := a.unitService.GetPots(unit)
+	pots, err := a.flowerPotService.GetPotsForUnit(unit.ID)
 	if err != nil {
 		return fmt.Errorf("couldn't get unit pots: %w", err)
 	}
