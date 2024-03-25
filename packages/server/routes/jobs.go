@@ -17,7 +17,7 @@ type AddJobResponse struct {
 
 func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
+		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
@@ -27,13 +27,13 @@ func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
 	if !helpers.ValidParams(unitID, potID, waterQtyStr, startTimeStr) {
-		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
+		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
 	startTimeInt, err := strconv.ParseInt(startTimeStr, 10, 64)
 	if err != nil {
-		helpers.ErrorResponse(w, r, errors.New("invalid start time"))
+		c.ErrorResponse(w, r, errors.New("invalid start time"))
 		return
 	}
 
@@ -41,12 +41,12 @@ func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
 
 	waterQty, err := strconv.Atoi(waterQtyStr)
 	if err != nil {
-		helpers.ErrorResponse(w, r, errors.New("invalid water quantity"))
+		c.ErrorResponse(w, r, errors.New("invalid water quantity"))
 		return
 	}
 
 	if startTime.Before(time.Now()) {
-		helpers.ErrorResponse(w, r, errors.New("start time should be in the future"))
+		c.ErrorResponse(w, r, errors.New("start time should be in the future"))
 		return
 	}
 
@@ -57,11 +57,11 @@ func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
 		WaterQty:    int64(waterQty),
 	})
 	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't create job: %w", err))
+		c.ErrorResponse(w, r, fmt.Errorf("couldn't create job: %w", err))
 		return
 	}
 
-	helpers.SuccessResponse(w, r, AddJobResponse{
+	c.SuccessResponse(w, r, AddJobResponse{
 		Job: job,
 	})
 }
@@ -72,22 +72,22 @@ type RemoveJobResponse struct {
 
 func (c Controller) RemoveJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
+		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
 	ID := r.Form.Get("ID")
 	if !helpers.ValidParams(ID) {
-		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
+		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
 	if err := c.app.RemoveJob(ID); err != nil {
-		helpers.ErrorResponse(w, r, err)
+		c.ErrorResponse(w, r, err)
 		return
 	}
 
-	helpers.SuccessResponse(w, r, RemoveJobResponse{
+	c.SuccessResponse(w, r, RemoveJobResponse{
 		Success: true,
 	})
 }
@@ -100,17 +100,17 @@ func (c Controller) GetJob(w http.ResponseWriter, r *http.Request) {
 	jobID := r.PathValue("JobID")
 
 	if !helpers.ValidParams(jobID) {
-		helpers.ErrorResponse(w, r, errors.New("invalid job ID"))
+		c.ErrorResponse(w, r, errors.New("invalid job ID"))
 		return
 	}
 
 	job, err := c.app.GetJob(jobID)
 	if err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("couldn't get job: %w", err))
+		c.ErrorResponse(w, r, fmt.Errorf("couldn't get job: %w", err))
 		return
 	}
 
-	helpers.SuccessResponse(w, r, GetJobResponse{
+	c.SuccessResponse(w, r, GetJobResponse{
 		Job: job,
 	})
 }
@@ -122,11 +122,11 @@ type GetJobsResponse struct {
 func (c Controller) GetJobs(w http.ResponseWriter, r *http.Request) {
 	jobs, err := c.app.GetAllJobs()
 	if err != nil {
-		helpers.ErrorResponse(w, r, err)
+		c.ErrorResponse(w, r, err)
 		return
 	}
 
-	helpers.SuccessResponse(w, r, GetJobsResponse{
+	c.SuccessResponse(w, r, GetJobsResponse{
 		Jobs: jobs,
 	})
 }
@@ -137,7 +137,7 @@ type UpdateJobResponse struct {
 
 func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
+		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
@@ -147,13 +147,13 @@ func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
 	if !helpers.ValidParams(jobID, waterQtyStr, startTimeStr, statusStr) {
-		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
+		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
 	startTimeInt, err := strconv.ParseInt(startTimeStr, 10, 64)
 	if err != nil {
-		helpers.ErrorResponse(w, r, errors.New("invalid start time"))
+		c.ErrorResponse(w, r, errors.New("invalid start time"))
 		return
 	}
 
@@ -161,18 +161,18 @@ func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
 
 	waterQty, err := strconv.Atoi(waterQtyStr)
 	if err != nil {
-		helpers.ErrorResponse(w, r, errors.New("invalid water quantity"))
+		c.ErrorResponse(w, r, errors.New("invalid water quantity"))
 		return
 	}
 
 	status, err := strconv.Atoi(statusStr)
 	if err != nil {
-		helpers.ErrorResponse(w, r, errors.New("invalid status"))
+		c.ErrorResponse(w, r, errors.New("invalid status"))
 		return
 	}
 
 	if startTime.Before(time.Now()) {
-		helpers.ErrorResponse(w, r, errors.New("start time should be in the future"))
+		c.ErrorResponse(w, r, errors.New("start time should be in the future"))
 		return
 	}
 
@@ -186,11 +186,11 @@ func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		helpers.ErrorResponse(w, r, err)
+		c.ErrorResponse(w, r, err)
 		return
 	}
 
-	helpers.SuccessResponse(w, r, UpdateJobResponse{
+	c.SuccessResponse(w, r, UpdateJobResponse{
 		Job: job,
 	})
 }

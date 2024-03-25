@@ -15,7 +15,7 @@ type CreatePotResponse struct {
 
 func (c Controller) AddPot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
+		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
@@ -23,17 +23,17 @@ func (c Controller) AddPot(w http.ResponseWriter, r *http.Request) {
 	name := r.PostForm.Get("Name")
 
 	if !helpers.ValidParams(name, unitID) {
-		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
+		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
 	pot, err := c.app.AddFlowerPot(name, unitID)
 	if err != nil {
-		helpers.ErrorResponse(w, r, err)
+		c.ErrorResponse(w, r, err)
 		return
 	}
 
-	helpers.SuccessResponse(w, r, CreatePotResponse{
+	c.SuccessResponse(w, r, CreatePotResponse{
 		Pot: pot,
 	})
 }
@@ -44,22 +44,22 @@ type RemovePotResponse struct {
 
 func (c Controller) RemovePot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
+		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
 	ID := r.Form.Get("ID")
 	if !helpers.ValidParams(ID) {
-		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
+		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
 	if err := c.app.RemoveFlowerPot(ID); err != nil {
-		helpers.ErrorResponse(w, r, err)
+		c.ErrorResponse(w, r, err)
 		return
 	}
 
-	helpers.SuccessResponse(w, r, RemovePotResponse{
+	c.SuccessResponse(w, r, RemovePotResponse{
 		Success: true,
 	})
 }
@@ -72,17 +72,17 @@ func (c Controller) GetPots(rw http.ResponseWriter, r *http.Request) {
 	unitID := r.PathValue("UnitID")
 
 	if !helpers.ValidParams(unitID) {
-		helpers.ErrorResponse(rw, r, fmt.Errorf("invalid unit ID: %v", unitID))
+		c.ErrorResponse(rw, r, fmt.Errorf("invalid unit ID: %v", unitID))
 		return
 	}
 
 	pots, err := c.app.GetFlowerPots(unitID)
 	if err != nil {
-		helpers.ErrorResponse(rw, r, err)
+		c.ErrorResponse(rw, r, err)
 		return
 	}
 
-	helpers.SuccessResponse(rw, r, GetPotsResponse{
+	c.SuccessResponse(rw, r, GetPotsResponse{
 		FlowerPots: pots,
 	})
 }
@@ -93,7 +93,7 @@ type UpdatePotResponse struct {
 
 func (c Controller) RenamePot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
+		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
 	}
 
@@ -101,16 +101,16 @@ func (c Controller) RenamePot(w http.ResponseWriter, r *http.Request) {
 	name := r.PostForm.Get("Name")
 
 	if !helpers.ValidParams(potID, name) {
-		helpers.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
+		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
 
 	if err := c.app.RenameFlowerPot(potID, name); err != nil {
-		helpers.ErrorResponse(w, r, err)
+		c.ErrorResponse(w, r, err)
 		return
 	}
 
-	helpers.SuccessResponse(w, r, UpdatePotResponse{
+	c.SuccessResponse(w, r, UpdatePotResponse{
 		Success: true,
 	})
 }
