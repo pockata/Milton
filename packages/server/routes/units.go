@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"milton"
 	"net/http"
-
-	"milton/helpers"
 )
 
 type PairedUnitsResponse struct {
@@ -38,7 +36,7 @@ func (c Controller) PairUnit(w http.ResponseWriter, r *http.Request) {
 	mdns := r.PostForm.Get("MDNS")
 	name := r.PostForm.Get("Name")
 
-	if !helpers.ValidParams(name, mdns) {
+	if !c.ValidParams(name, mdns) {
 		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
@@ -65,7 +63,7 @@ func (c Controller) UnpairUnit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ID := r.Form.Get("ID")
-	if !helpers.ValidParams(ID) {
+	if !c.ValidParams(ID) {
 		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}

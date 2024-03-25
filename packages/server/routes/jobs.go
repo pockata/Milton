@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
-	"milton/helpers"
 )
 
 type AddJobResponse struct {
@@ -26,7 +24,7 @@ func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
 	startTimeStr := r.PostForm.Get("StartTime")
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
-	if !helpers.ValidParams(unitID, potID, waterQtyStr, startTimeStr) {
+	if !c.ValidParams(unitID, potID, waterQtyStr, startTimeStr) {
 		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
@@ -77,7 +75,7 @@ func (c Controller) RemoveJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ID := r.Form.Get("ID")
-	if !helpers.ValidParams(ID) {
+	if !c.ValidParams(ID) {
 		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
@@ -99,7 +97,7 @@ type GetJobResponse struct {
 func (c Controller) GetJob(w http.ResponseWriter, r *http.Request) {
 	jobID := r.PathValue("JobID")
 
-	if !helpers.ValidParams(jobID) {
+	if !c.ValidParams(jobID) {
 		c.ErrorResponse(w, r, errors.New("invalid job ID"))
 		return
 	}
@@ -146,7 +144,7 @@ func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	statusStr := r.PostForm.Get("Status")
 	waterQtyStr := r.PostForm.Get("WaterQty")
 
-	if !helpers.ValidParams(jobID, waterQtyStr, startTimeStr, statusStr) {
+	if !c.ValidParams(jobID, waterQtyStr, startTimeStr, statusStr) {
 		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}

@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"milton"
 	"net/http"
-
-	"milton/helpers"
 )
 
 type CreatePotResponse struct {
@@ -22,7 +20,7 @@ func (c Controller) AddPot(w http.ResponseWriter, r *http.Request) {
 	unitID := r.PostForm.Get("UnitID")
 	name := r.PostForm.Get("Name")
 
-	if !helpers.ValidParams(name, unitID) {
+	if !c.ValidParams(name, unitID) {
 		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
@@ -49,7 +47,7 @@ func (c Controller) RemovePot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ID := r.Form.Get("ID")
-	if !helpers.ValidParams(ID) {
+	if !c.ValidParams(ID) {
 		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}
@@ -71,7 +69,7 @@ type GetPotsResponse struct {
 func (c Controller) GetPots(rw http.ResponseWriter, r *http.Request) {
 	unitID := r.PathValue("UnitID")
 
-	if !helpers.ValidParams(unitID) {
+	if !c.ValidParams(unitID) {
 		c.ErrorResponse(rw, r, fmt.Errorf("invalid unit ID: %v", unitID))
 		return
 	}
@@ -100,7 +98,7 @@ func (c Controller) RenamePot(w http.ResponseWriter, r *http.Request) {
 	potID := r.PostForm.Get("PotID")
 	name := r.PostForm.Get("Name")
 
-	if !helpers.ValidParams(potID, name) {
+	if !c.ValidParams(potID, name) {
 		c.ErrorResponse(w, r, errors.New("invalid request. missing parameters"))
 		return
 	}

@@ -56,3 +56,13 @@ func (c Controller) ErrorResponse(rw http.ResponseWriter, r *http.Request, errs 
 
 	c.ApiResponse(rw, r, http.StatusBadRequest, resp)
 }
+
+func (c Controller) ValidParams(args ...string) bool {
+	for _, arg := range args {
+		if arg == "" {
+			return false
+		}
+	}
+
+	return true
+}
