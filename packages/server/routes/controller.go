@@ -21,7 +21,7 @@ func NewController(cfg ControllerConfig) Controller {
 }
 
 type APIResponseType struct {
-	Errors []error     `json:"errors"`
+	Errors []string    `json:"errors"`
 	Data   interface{} `json:"data"`
 }
 
@@ -44,9 +44,14 @@ func (c Controller) SuccessResponse(rw http.ResponseWriter, r *http.Request, dat
 
 // handle erroneous API responses
 func (c Controller) ErrorResponse(rw http.ResponseWriter, r *http.Request, errs ...error) {
+	errStrs := make([]string, 0, len(errs))
+	for _, e := range errs {
+		errStrs = append(errStrs, e.Error())
+	}
+
 	resp := APIResponseType{
 		Data:   nil,
-		Errors: errs,
+		Errors: errStrs,
 	}
 
 	c.ApiResponse(rw, r, http.StatusBadRequest, resp)
