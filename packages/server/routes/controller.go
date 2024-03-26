@@ -50,8 +50,9 @@ func (c Controller) SuccessResponse(rw http.ResponseWriter, r *http.Request, dat
 func (c Controller) ErrorResponse(rw http.ResponseWriter, r *http.Request, errs ...error) {
 	errStrs := make([]string, 0, len(errs))
 	for _, e := range errs {
-		errStrs = append(errStrs, e.Error())
-		c.log.Error(e.Error())
+		msg := e.Error()
+		errStrs = append(errStrs, msg)
+		c.log.Error(msg, "req-id", rw.Header().Get("X-Request-Id"))
 	}
 
 	resp := APIResponseType{

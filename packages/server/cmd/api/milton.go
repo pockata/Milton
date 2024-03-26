@@ -103,8 +103,10 @@ func run(log milton.Logger) error {
 	router.HandleFunc("GET /get-jobs", ctrl.GetJobs)
 	router.HandleFunc("GET /get-job/{JobID}", ctrl.GetJob)
 
+	wrappedRouter := foundation.SetRequestID(router)
+
 	addr := fmt.Sprintf("%s:%d", cfg.Web.Host, cfg.Web.Port)
-	return http.ListenAndServe(addr, router)
+	return http.ListenAndServe(addr, wrappedRouter)
 }
 
 // func main2() {
