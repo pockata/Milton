@@ -80,28 +80,31 @@ func run(log milton.Logger) error {
 		}),
 	})
 
-	router := http.NewServeMux()
+	api := http.NewServeMux()
 	w := helpers.CreateAPIWrapHandler(dbInstance)
 
-	router.HandleFunc("GET /query-active-units", w(routes.QueryActiveUnits))
+	api.HandleFunc("GET /query-active-units", w(routes.QueryActiveUnits))
 
 	// units
-	router.HandleFunc("GET /get-paired-units", ctrl.GetPairedUnits)
-	router.HandleFunc("POST /pair-unit", ctrl.PairUnit)
-	router.HandleFunc("POST /unpair-unit", ctrl.UnpairUnit)
+	api.HandleFunc("GET /get-paired-units", ctrl.GetPairedUnits)
+	api.HandleFunc("POST /pair-unit", ctrl.PairUnit)
+	api.HandleFunc("POST /unpair-unit", ctrl.UnpairUnit)
 
 	// pots
-	router.HandleFunc("POST /add-pot", ctrl.AddPot)
-	router.HandleFunc("GET /get-pots/{UnitID}", ctrl.GetPots)
-	router.HandleFunc("POST /rename-pot", ctrl.RenamePot)
-	router.HandleFunc("POST /remove-pot", ctrl.RemovePot)
+	api.HandleFunc("POST /add-pot", ctrl.AddPot)
+	api.HandleFunc("GET /get-pots/{UnitID}", ctrl.GetPots)
+	api.HandleFunc("POST /rename-pot", ctrl.RenamePot)
+	api.HandleFunc("POST /remove-pot", ctrl.RemovePot)
 
 	// watering jobs
-	router.HandleFunc("POST /add-job", ctrl.AddJob)
-	router.HandleFunc("POST /remove-job", ctrl.RemoveJob)
-	router.HandleFunc("POST /update-job", ctrl.UpdateJob)
-	router.HandleFunc("GET /get-jobs", ctrl.GetJobs)
-	router.HandleFunc("GET /get-job/{JobID}", ctrl.GetJob)
+	api.HandleFunc("POST /add-job", ctrl.AddJob)
+	api.HandleFunc("POST /remove-job", ctrl.RemoveJob)
+	api.HandleFunc("POST /update-job", ctrl.UpdateJob)
+	api.HandleFunc("GET /get-jobs", ctrl.GetJobs)
+	api.HandleFunc("GET /get-job/{JobID}", ctrl.GetJob)
+
+	router := http.NewServeMux()
+	router.Handle("/api/v1/", http.StripPrefix("/api/v1", api))
 
 	wrappedRouter := foundation.SetRequestID(router)
 	wrappedRouter = foundation.RequestLogger(wrappedRouter, log)
