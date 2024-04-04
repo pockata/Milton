@@ -9,35 +9,16 @@ import (
 func RequestLogger(next http.Handler, log milton.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		wrapped := newWrappedResponse(w)
 
-		next.ServeHTTP(&wrapped, r)
+		next.ServeHTTP(w, r)
 
 		log.Info("Request",
-			"status", wrapped.statusCode,
 			"method", r.Method,
 			"url", getUrl(r),
-			"req-id", wrapped.Header().Get("X-Request-Id"),
+			"req-id", w.Header().Get("X-Request-Id"),
 			"dur", time.Since(start),
 		)
 	})
-}
-
-type wrappedResponse struct {
-	http.ResponseWriter
-	statusCode int
-}
-
-func (w *wrappedResponse) WriteHeader(status int) {
-	w.ResponseWriter.WriteHeader(status)
-	w.statusCode = status
-}
-
-func newWrappedResponse(w http.ResponseWriter) wrappedResponse {
-	return wrappedResponse{
-		ResponseWriter: w,
-		statusCode:     http.StatusOK,
-	}
 }
 
 func getUrl(r *http.Request) string {
