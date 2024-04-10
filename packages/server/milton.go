@@ -14,7 +14,7 @@ type Logger interface {
 	Error(string, ...any)
 }
 
-type UnitService interface {
+type UnitRepository interface {
 	Pair(string, string) (Unit, error)
 	Unpair(string) error
 	All() (UnitSlice, error)
@@ -24,7 +24,7 @@ type UnitService interface {
 type Unit = *models.Unit
 type UnitSlice = models.UnitSlice
 
-type FlowerPotService interface {
+type FlowerPotRepository interface {
 	Add(string, Unit) (FlowerPot, error)
 	RemoveByID(string) error
 	Remove(FlowerPot) error
@@ -55,7 +55,7 @@ type JobUpdateConfig struct {
 	WaterQty  *int64
 }
 
-type JobService interface {
+type JobRepository interface {
 	Get(string) (Job, error)
 	GetAll() (JobSlice, error)
 	Remove(string) error
@@ -70,7 +70,7 @@ type JobCreateConfig struct {
 	WaterQty    int64
 }
 
-type LogService interface {
+type LogRepository interface {
 	Add(LogCreateConfig) error
 	GetAll() (string, error)
 }

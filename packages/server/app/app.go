@@ -3,21 +3,21 @@ package app
 import "milton"
 
 type App struct {
-	flowerPotService milton.FlowerPotService
-	unitService      milton.UnitService
-	jobService       milton.JobService
+	flowerPotRepository milton.FlowerPotRepository
+	unitRepository      milton.UnitRepository
+	jobRepository       milton.JobRepository
 }
 
 type AppConfig struct {
-	FlowerPotService milton.FlowerPotService
-	UnitService      milton.UnitService
-	JobService       milton.JobService
+	FlowerPotRepository milton.FlowerPotRepository
+	UnitRepository      milton.UnitRepository
+	JobRepository       milton.JobRepository
 }
 
 func NewApp(cfg AppConfig) App {
 	return App{
-		flowerPotService: cfg.FlowerPotService,
-		unitService:      cfg.UnitService,
-		jobService:       cfg.JobService,
+		flowerPotRepository: cfg.FlowerPotRepository,
+		unitRepository:      cfg.UnitRepository,
+		jobRepository:       cfg.JobRepository,
 	}
 }

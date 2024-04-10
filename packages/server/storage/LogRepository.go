@@ -13,17 +13,17 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-type LogService struct {
+type LogRepository struct {
 	db *sql.DB
 }
 
-func NewLogService(db *sql.DB) *LogService {
-	return &LogService{
+func NewLogRepository(db *sql.DB) *LogRepository {
+	return &LogRepository{
 		db: db,
 	}
 }
 
-func (l *LogService) Add(cfg milton.LogCreateConfig) error {
+func (l *LogRepository) Add(cfg milton.LogCreateConfig) error {
 	ctx := context.Background()
 
 	log := &models.Log{
@@ -36,7 +36,7 @@ func (l *LogService) Add(cfg milton.LogCreateConfig) error {
 	return log.Insert(ctx, l.db, boil.Infer())
 }
 
-func (l *LogService) GetAll() (string, error) {
+func (l *LogRepository) GetAll() (string, error) {
 	ctx := context.Background()
 
 	logs, err := models.Logs(

@@ -74,9 +74,9 @@ func run(log milton.Logger) error {
 	ctrl := routes.NewController(routes.ControllerConfig{
 		Logger: log,
 		App: app.NewApp(app.AppConfig{
-			FlowerPotService: storage.NewFlowerPotService(dbInstance),
-			UnitService:      storage.NewUnitService(dbInstance),
-			JobService:       storage.NewJobService(dbInstance),
+			FlowerPotRepository: storage.NewFlowerPotRepository(dbInstance),
+			UnitRepository:      storage.NewUnitRepository(dbInstance),
+			JobRepository:       storage.NewJobRepository(dbInstance),
 		}),
 	})
 

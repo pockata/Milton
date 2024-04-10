@@ -6,7 +6,7 @@ import (
 )
 
 func (a App) AddJob(cfg milton.JobCreateConfig) (milton.Job, error) {
-	job, err := a.jobService.Add(cfg)
+	job, err := a.jobRepository.Add(cfg)
 
 	if err != nil {
 		return nil, fmt.Errorf("couldn't add job: %w", err)
@@ -16,7 +16,7 @@ func (a App) AddJob(cfg milton.JobCreateConfig) (milton.Job, error) {
 }
 
 func (a App) RemoveJob(ID string) error {
-	err := a.jobService.Remove(ID)
+	err := a.jobRepository.Remove(ID)
 
 	if err != nil {
 		return fmt.Errorf("couldn't remove job: %w", err)
@@ -26,7 +26,7 @@ func (a App) RemoveJob(ID string) error {
 }
 
 func (a App) UpdateJob(ID string, cfg milton.JobUpdateConfig) (milton.Job, error) {
-	job, err := a.jobService.Update(ID, cfg)
+	job, err := a.jobRepository.Update(ID, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't update job: %w", err)
 	}
@@ -35,7 +35,7 @@ func (a App) UpdateJob(ID string, cfg milton.JobUpdateConfig) (milton.Job, error
 }
 
 func (a App) GetJob(ID string) (milton.Job, error) {
-	job, err := a.jobService.Get(ID)
+	job, err := a.jobRepository.Get(ID)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get job: %w", err)
 	}
@@ -44,7 +44,7 @@ func (a App) GetJob(ID string) (milton.Job, error) {
 }
 
 func (a App) GetAllJobs() (milton.JobSlice, error) {
-	jobs, err := a.jobService.GetAll()
+	jobs, err := a.jobRepository.GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get all jobs: %w", err)
 	}
