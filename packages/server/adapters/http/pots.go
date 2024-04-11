@@ -1,14 +1,14 @@
-package routes
+package http
 
 import (
 	"errors"
 	"fmt"
-	"milton"
+	"milton/core/domain"
 	"net/http"
 )
 
 type CreatePotResponse struct {
-	Pot milton.FlowerPot `json:"flowerPot"`
+	Pot domain.FlowerPot `json:"flowerPot"`
 }
 
 func (c Controller) AddPot(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +63,7 @@ func (c Controller) RemovePot(w http.ResponseWriter, r *http.Request) {
 }
 
 type GetPotsResponse struct {
-	FlowerPots milton.FlowerPotSlice `json:"flowerPots"`
+	FlowerPots domain.FlowerPotSlice `json:"flowerPots"`
 }
 
 func (c Controller) GetPots(rw http.ResponseWriter, r *http.Request) {

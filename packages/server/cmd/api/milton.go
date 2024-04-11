@@ -9,16 +9,17 @@ import (
 	"github.com/ardanlabs/conf/v3"
 
 	"milton"
-	"milton/app"
-	"milton/foundation"
+	"milton/adapters"
+	dbAdapter "milton/adapters/db"
+	routes "milton/adapters/http"
+	"milton/core/ports"
+	"milton/core/services"
 	"milton/helpers"
-	"milton/routes"
-	"milton/storage"
 )
 
 func main() {
 	// Construct the application logger.
-	log := foundation.NewStandardLogger("MILTON-API")
+	log := adapters.NewStandardLogger("MILTON-API")
 
 	if err := run(&log); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
@@ -26,7 +27,7 @@ func main() {
 	}
 }
 
-func run(log milton.Logger) error {
+func run(log ports.Logger) error {
 	cfg := struct {
 		conf.Version
 
@@ -64,7 +65,7 @@ func run(log milton.Logger) error {
 	}
 	log.Info("startup", "config", out)
 
-	db := storage.NewDB(cfg.DB.File, log)
+	db := dbAdapter.NewDB(cfg.DB.File, log)
 	dbInstance, err := db.Connect()
 
 	if err != nil {
@@ -73,10 +74,10 @@ func run(log milton.Logger) error {
 
 	ctrl := routes.NewController(routes.ControllerConfig{
 		Logger: log,
-		App: app.NewApp(app.AppConfig{
-			FlowerPotRepository: storage.NewFlowerPotRepository(dbInstance),
-			UnitRepository:      storage.NewUnitRepository(dbInstance),
-			JobRepository:       storage.NewJobRepository(dbInstance),
+		App: services.NewApp(services.AppConfig{
+			FlowerPotRepository: dbAdapter.NewFlowerPotRepository(dbInstance),
+			UnitRepository:      dbAdapter.NewUnitRepository(dbInstance),
+			JobRepository:       dbAdapter.NewJobRepository(dbInstance),
 		}),
 	})
 
@@ -106,8 +107,8 @@ func run(log milton.Logger) error {
 	router := http.NewServeMux()
 	router.Handle("/api/v1/", http.StripPrefix("/api/v1", api))
 
-	wrappedRouter := foundation.SetRequestID(router)
-	wrappedRouter = foundation.RequestLogger(wrappedRouter, log)
+	wrappedRouter := adapters.SetRequestID(router)
+	wrappedRouter = adapters.RequestLogger(wrappedRouter, log)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Web.Host, cfg.Web.Port)
 	return http.ListenAndServe(addr, wrappedRouter)

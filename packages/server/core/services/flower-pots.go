@@ -1,11 +1,11 @@
-package app
+package services
 
 import (
 	"fmt"
-	"milton"
+	"milton/core/domain"
 )
 
-func (a App) AddFlowerPot(name string, unitID string) (milton.FlowerPot, error) {
+func (a App) AddFlowerPot(name string, unitID string) (domain.FlowerPot, error) {
 	unit, err := a.unitRepository.Get(unitID)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't find unit: %w", err)
@@ -19,7 +19,7 @@ func (a App) AddFlowerPot(name string, unitID string) (milton.FlowerPot, error) 
 	return flowerPot, nil
 }
 
-func (a App) GetFlowerPots(unitID string) (milton.FlowerPotSlice, error) {
+func (a App) GetFlowerPots(unitID string) (domain.FlowerPotSlice, error) {
 	unit, err := a.unitRepository.Get(unitID)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't find unit: %w", err)

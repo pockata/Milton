@@ -1,12 +1,12 @@
-package foundation
+package adapters
 
 import (
-	"milton"
+	"milton/core/ports"
 	"net/http"
 	"time"
 )
 
-func RequestLogger(next http.Handler, log milton.Logger) http.Handler {
+func RequestLogger(next http.Handler, log ports.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 

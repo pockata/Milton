@@ -1,12 +1,13 @@
-package storage
+package db
 
 import (
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"milton"
-	models "milton/generated_models"
+	models "milton/adapters/db/generated_models"
+	"milton/core/domain"
+	"milton/core/ports"
 
 	"github.com/lucsky/cuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -23,7 +24,7 @@ func NewLogRepository(db *sql.DB) *LogRepository {
 	}
 }
 
-func (l *LogRepository) Add(cfg milton.LogCreateConfig) error {
+func (l *LogRepository) Add(cfg ports.LogCreateConfig) error {
 	ctx := context.Background()
 
 	log := &models.Log{
@@ -48,21 +49,21 @@ func (l *LogRepository) GetAll() (string, error) {
 		return "", err
 	}
 
-	rows := make([]milton.LogFormat, len(logs))
+	rows := make([]domain.LogFormat, len(logs))
 
 	for i, log := range logs {
-		rows[i] = milton.LogFormat{
+		rows[i] = domain.LogFormat{
 			Message: log.Message,
-			Unit: milton.LogUnit{
+			Unit: domain.LogUnit{
 				Name: log.R.Unit.Name,
 				MDNS: log.R.Unit.MDNS,
 			},
-			Job: milton.LogJob{
+			Job: domain.LogJob{
 				StartTime: log.R.Job.StartTime,
-				Status:    milton.JobStatus(log.R.Job.Status),
+				Status:    domain.JobStatus(log.R.Job.Status),
 				WaterQty:  log.R.Job.WaterQty,
 			},
-			FlowerPot: milton.LogFlowerPot{
+			FlowerPot: domain.LogFlowerPot{
 				Name: log.R.Job.R.FlowerPot.Name,
 			},
 		}

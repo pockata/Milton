@@ -1,12 +1,13 @@
-package storage
+package db
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"milton"
-	models "milton/generated_models"
+	models "milton/adapters/db/generated_models"
+	"milton/core/domain"
+	"milton/core/ports"
 
 	"github.com/lucsky/cuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -23,7 +24,7 @@ func NewJobRepository(db *sql.DB) JobRepository {
 	}
 }
 
-func (s JobRepository) Get(ID string) (milton.Job, error) {
+func (s JobRepository) Get(ID string) (domain.Job, error) {
 	ctx := context.Background()
 	job, err := models.FindJob(ctx, s.db, ID)
 
@@ -38,7 +39,7 @@ func (s JobRepository) Get(ID string) (milton.Job, error) {
 	return job, nil
 }
 
-func (s JobRepository) GetAll() (milton.JobSlice, error) {
+func (s JobRepository) GetAll() (domain.JobSlice, error) {
 	ctx := context.Background()
 	potRel := qm.Load(models.JobRels.FlowerPot)
 	unitRel := qm.Load(models.JobRels.Unit)
@@ -64,7 +65,7 @@ func (s JobRepository) Remove(ID string) error {
 	return err
 }
 
-func (s JobRepository) Add(cfg milton.JobCreateConfig) (milton.Job, error) {
+func (s JobRepository) Add(cfg ports.JobCreateConfig) (domain.Job, error) {
 	job := &models.Job{
 		ID:          fmt.Sprintf("j-%s", cuid.New()),
 		StartTime:   cfg.StartTime,
@@ -80,7 +81,7 @@ func (s JobRepository) Add(cfg milton.JobCreateConfig) (milton.Job, error) {
 	return job, nil
 }
 
-func (s JobRepository) Update(ID string, upd milton.JobUpdateConfig) (milton.Job, error) {
+func (s JobRepository) Update(ID string, upd ports.JobUpdateConfig) (domain.Job, error) {
 	job, err := models.FindJob(context.Background(), s.db, ID)
 
 	if err != nil {

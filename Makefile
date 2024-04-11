@@ -15,6 +15,7 @@ endif
 PRISMA:=PRISMA_DB_FILE="file:../${DB_FILE}" prisma-client-go
 BOILER:=sqlboiler
 SRV:=$(shell realpath "packages/server")
+DB:=$(shell realpath "${SRV}/adapters/db")
 
 schema-sync: schema-push orm-generate
 	@echo "Schema synced"
@@ -26,16 +27,16 @@ prisma-check:
 	)
 
 schema-push: prisma-check
-	@cd "${SRV}" && $(PRISMA) db push
+	@cd "${DB}" && $(PRISMA) db push
 
 schema-status: prisma-check
-	@cd "${SRV}" && $(PRISMA) migrate status
+	@cd "${DB}" && $(PRISMA) migrate status
 
 schema-migrate: prisma-check
-	@cd "${SRV}" && $(PRISMA) migrate dev
+	@cd "${DB}" && $(PRISMA) migrate dev
 
 schema-format: prisma-check
-	@cd "${SRV}" && $(PRISMA) format
+	@cd "${DB}" && $(PRISMA) format
 
 boiler-check:
 	@which sqlboiler sqlboiler-sqlite3 > /dev/null 2>&1 || (\
@@ -46,7 +47,7 @@ boiler-check:
 
 orm-generate: boiler-check
 	@echo -e "Generating ORM...\n"
-	@cd "${SRV}" && SQLITE3_DBNAME="${SRV}/${DB_FILE}" $(BOILER) sqlite3
+	@cd "${DB}" && SQLITE3_DBNAME="${SRV}/${DB_FILE}" $(BOILER) sqlite3
 
 build-server:
 	@cd "${SRV}" && go build -ldflags "-X milton.Build=${VERSION}" -o ./bin/milton ./cmd/api/milton.go

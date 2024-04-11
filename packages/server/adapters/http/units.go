@@ -1,14 +1,14 @@
-package routes
+package http
 
 import (
 	"errors"
 	"fmt"
-	"milton"
+	"milton/core/domain"
 	"net/http"
 )
 
 type PairedUnitsResponse struct {
-	Units milton.UnitSlice `json:"units"`
+	Units domain.UnitSlice `json:"units"`
 }
 
 func (c Controller) GetPairedUnits(rw http.ResponseWriter, r *http.Request) {
@@ -24,7 +24,7 @@ func (c Controller) GetPairedUnits(rw http.ResponseWriter, r *http.Request) {
 }
 
 type PairUnitResponse struct {
-	Unit milton.Unit `json:"unit"`
+	Unit domain.Unit `json:"unit"`
 }
 
 func (c Controller) PairUnit(w http.ResponseWriter, r *http.Request) {

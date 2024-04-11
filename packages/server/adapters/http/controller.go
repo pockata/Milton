@@ -1,20 +1,20 @@
-package routes
+package http
 
 import (
 	"encoding/json"
-	"milton"
-	"milton/app"
+	"milton/core/ports"
+	"milton/core/services"
 	"net/http"
 )
 
 type Controller struct {
-	app app.App
-	log milton.Logger
+	app services.App
+	log ports.Logger
 }
 
 type ControllerConfig struct {
-	App    app.App
-	Logger milton.Logger
+	App    services.App
+	Logger ports.Logger
 }
 
 func NewController(cfg ControllerConfig) Controller {

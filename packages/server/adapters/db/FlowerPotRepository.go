@@ -1,11 +1,11 @@
-package storage
+package db
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
-	"milton"
-	models "milton/generated_models"
+	models "milton/adapters/db/generated_models"
+	"milton/core/domain"
 
 	"github.com/lucsky/cuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -22,7 +22,7 @@ func NewFlowerPotRepository(db *sql.DB) FlowerPotRepository {
 	}
 }
 
-func (p FlowerPotRepository) Add(name string, unit milton.Unit) (milton.FlowerPot, error) {
+func (p FlowerPotRepository) Add(name string, unit domain.Unit) (domain.FlowerPot, error) {
 	pot := models.FlowerPot{
 		ID:     fmt.Sprintf("fp-%s", cuid.New()),
 		Name:   name,
@@ -45,13 +45,13 @@ func (p FlowerPotRepository) RemoveByID(ID string) error {
 	return p.Remove(pot)
 }
 
-func (p FlowerPotRepository) Remove(pot milton.FlowerPot) error {
+func (p FlowerPotRepository) Remove(pot domain.FlowerPot) error {
 	_, err := pot.Delete(context.Background(), p.db)
 
 	return err
 }
 
-func (p FlowerPotRepository) All() (milton.FlowerPotSlice, error) {
+func (p FlowerPotRepository) All() (domain.FlowerPotSlice, error) {
 	pots, err := models.FlowerPots().All(context.Background(), p.db)
 
 	if err != nil {
@@ -61,7 +61,7 @@ func (p FlowerPotRepository) All() (milton.FlowerPotSlice, error) {
 	return pots, nil
 }
 
-func (p FlowerPotRepository) Get(ID string) (milton.FlowerPot, error) {
+func (p FlowerPotRepository) Get(ID string) (domain.FlowerPot, error) {
 	pot, err := models.FindFlowerPot(context.Background(), p.db, ID)
 
 	if err != nil {
@@ -71,13 +71,13 @@ func (p FlowerPotRepository) Get(ID string) (milton.FlowerPot, error) {
 	return pot, err
 }
 
-func (p FlowerPotRepository) Update(pot milton.FlowerPot) error {
+func (p FlowerPotRepository) Update(pot domain.FlowerPot) error {
 	_, err := pot.Update(context.Background(), p.db, boil.Infer())
 
 	return err
 }
 
-func (p FlowerPotRepository) GetPotsForUnit(unitID string) (milton.FlowerPotSlice, error) {
+func (p FlowerPotRepository) GetPotsForUnit(unitID string) (domain.FlowerPotSlice, error) {
 	mods := []qm.QueryMod{
 		models.FlowerPotWhere.UnitID.EQ(unitID),
 	}

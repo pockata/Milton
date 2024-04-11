@@ -1,16 +1,17 @@
-package routes
+package http
 
 import (
 	"errors"
 	"fmt"
-	"milton"
+	"milton/core/domain"
+	"milton/core/ports"
 	"net/http"
 	"strconv"
 	"time"
 )
 
 type AddJobResponse struct {
-	Job milton.Job `json:"job"`
+	Job domain.Job `json:"job"`
 }
 
 func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +49,7 @@ func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	job, err := c.app.AddJob(milton.JobCreateConfig{
+	job, err := c.app.AddJob(ports.JobCreateConfig{
 		UnitID:      unitID,
 		FlowerPotID: potID,
 		StartTime:   startTime,
@@ -91,7 +92,7 @@ func (c Controller) RemoveJob(w http.ResponseWriter, r *http.Request) {
 }
 
 type GetJobResponse struct {
-	Job milton.Job `json:"job"`
+	Job domain.Job `json:"job"`
 }
 
 func (c Controller) GetJob(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +115,7 @@ func (c Controller) GetJob(w http.ResponseWriter, r *http.Request) {
 }
 
 type GetJobsResponse struct {
-	Jobs milton.JobSlice `json:"jobs"`
+	Jobs domain.JobSlice `json:"jobs"`
 }
 
 func (c Controller) GetJobs(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +131,7 @@ func (c Controller) GetJobs(w http.ResponseWriter, r *http.Request) {
 }
 
 type UpdateJobResponse struct {
-	Job milton.Job `json:"job"`
+	Job domain.Job `json:"job"`
 }
 
 func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
@@ -174,10 +175,10 @@ func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jStatus := milton.JobStatus(status)
+	jStatus := domain.JobStatus(status)
 	jWater := int64(waterQty)
 
-	job, err := c.app.UpdateJob(jobID, milton.JobUpdateConfig{
+	job, err := c.app.UpdateJob(jobID, ports.JobUpdateConfig{
 		StartTime: &startTime,
 		Status:    &jStatus,
 		WaterQty:  &jWater,

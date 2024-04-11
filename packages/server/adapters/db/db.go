@@ -1,9 +1,9 @@
-package storage
+package db
 
 import (
 	"database/sql"
 	"fmt"
-	"milton"
+	"milton/core/ports"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -11,10 +11,10 @@ import (
 
 type DB struct {
 	SQLFile string
-	log     milton.Logger
+	log     ports.Logger
 }
 
-func NewDB(SQLFile string, log milton.Logger) *DB {
+func NewDB(SQLFile string, log ports.Logger) *DB {
 	return &DB{
 		SQLFile: SQLFile,
 		log:     log,

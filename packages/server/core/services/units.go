@@ -1,11 +1,11 @@
-package app
+package services
 
 import (
 	"fmt"
-	"milton"
+	"milton/core/domain"
 )
 
-func (a App) PairUnit(name string, mdns string) (milton.Unit, error) {
+func (a App) PairUnit(name string, mdns string) (domain.Unit, error) {
 	unit, err := a.unitRepository.Pair(mdns, name)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't pair unit: %w", err)
@@ -14,7 +14,7 @@ func (a App) PairUnit(name string, mdns string) (milton.Unit, error) {
 	return unit, nil
 }
 
-func (a App) GetAllUnits() (milton.UnitSlice, error) {
+func (a App) GetAllUnits() (domain.UnitSlice, error) {
 	units, err := a.unitRepository.All()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get all units: %w", err)
