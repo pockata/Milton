@@ -12,7 +12,7 @@ type PairedUnitsResponse struct {
 }
 
 func (c HTTPController) GetPairedUnits(rw http.ResponseWriter, r *http.Request) {
-	units, err := c.app.GetAllUnits()
+	units, err := c.units.GetAllUnits()
 	if err != nil {
 		c.ErrorResponse(rw, r, err)
 		return
@@ -41,7 +41,7 @@ func (c HTTPController) PairUnit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	unit, err := c.app.PairUnit(name, mdns)
+	unit, err := c.units.PairUnit(name, mdns)
 	if err != nil {
 		c.ErrorResponse(w, r, err)
 		return
@@ -68,7 +68,7 @@ func (c HTTPController) UnpairUnit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.app.UnpairUnit(ID); err != nil {
+	if err := c.units.UnpairUnit(ID); err != nil {
 		c.ErrorResponse(w, r, err)
 		return
 	}

@@ -3,24 +3,27 @@ package http
 import (
 	"encoding/json"
 	"milton/core/ports"
-	"milton/core/services"
 	"net/http"
 )
 
 type HTTPController struct {
-	app services.App
-	log ports.Logger
+	log        ports.Logger
+	flowerPots ports.FlowerPotService
+	units      ports.UnitService
+	jobs       ports.JobService
 }
 
-type HTTPControllerConfig struct {
-	App    services.App
-	Logger ports.Logger
-}
-
-func NewHTTPController(cfg HTTPControllerConfig) HTTPController {
+func NewHTTPController(
+	log ports.Logger,
+	flowerPots ports.FlowerPotService,
+	units ports.UnitService,
+	jobs ports.JobService,
+) HTTPController {
 	return HTTPController{
-		app: cfg.App,
-		log: cfg.Logger,
+		log:        log,
+		flowerPots: flowerPots,
+		units:      units,
+		jobs:       jobs,
 	}
 }
 

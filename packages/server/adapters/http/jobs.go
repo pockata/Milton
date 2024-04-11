@@ -49,7 +49,7 @@ func (c HTTPController) AddJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	job, err := c.app.AddJob(ports.JobCreateConfig{
+	job, err := c.jobs.AddJob(ports.JobCreateConfig{
 		UnitID:      unitID,
 		FlowerPotID: potID,
 		StartTime:   startTime,
@@ -81,7 +81,7 @@ func (c HTTPController) RemoveJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.app.RemoveJob(ID); err != nil {
+	if err := c.jobs.RemoveJob(ID); err != nil {
 		c.ErrorResponse(w, r, err)
 		return
 	}
@@ -103,7 +103,7 @@ func (c HTTPController) GetJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	job, err := c.app.GetJob(jobID)
+	job, err := c.jobs.GetJob(jobID)
 	if err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("couldn't get job: %w", err))
 		return
@@ -119,7 +119,7 @@ type GetJobsResponse struct {
 }
 
 func (c HTTPController) GetJobs(w http.ResponseWriter, r *http.Request) {
-	jobs, err := c.app.GetAllJobs()
+	jobs, err := c.jobs.GetAllJobs()
 	if err != nil {
 		c.ErrorResponse(w, r, err)
 		return
@@ -178,7 +178,7 @@ func (c HTTPController) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	jStatus := domain.JobStatus(status)
 	jWater := int64(waterQty)
 
-	job, err := c.app.UpdateJob(jobID, ports.JobUpdateConfig{
+	job, err := c.jobs.UpdateJob(jobID, ports.JobUpdateConfig{
 		StartTime: &startTime,
 		Status:    &jStatus,
 		WaterQty:  &jWater,

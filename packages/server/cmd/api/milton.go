@@ -10,7 +10,7 @@ import (
 
 	"milton"
 	"milton/adapters"
-	dbAdapter "milton/adapters/db"
+	"milton/adapters/db"
 	routes "milton/adapters/http"
 	"milton/core/ports"
 	"milton/core/services"
@@ -63,23 +63,24 @@ func run(log ports.Logger) error {
 	if err != nil {
 		return fmt.Errorf("generating config for output: %w", err)
 	}
+
 	log.Info("startup", "config", out)
 
-	db := dbAdapter.NewDB(cfg.DB.File, log)
-	dbInstance, err := db.Connect()
-
+	dbInstance, err := db.NewDB(cfg.DB.File, log).Connect()
 	if err != nil {
 		return fmt.Errorf("couldn't connect to the database: %w", err)
 	}
 
-	ctrl := routes.NewHTTPController(routes.HTTPControllerConfig{
-		Logger: log,
-		App: services.NewApp(services.AppConfig{
-			FlowerPotRepository: dbAdapter.NewFlowerPotRepository(dbInstance),
-			UnitRepository:      dbAdapter.NewUnitRepository(dbInstance),
-			JobRepository:       dbAdapter.NewJobRepository(dbInstance),
-		}),
-	})
+	flowerPots := db.NewFlowerPotRepository(dbInstance)
+	units := db.NewUnitRepository(dbInstance)
+	jobs := db.NewJobRepository(dbInstance)
+
+	ctrl := routes.NewHTTPController(
+		log,
+		services.NewFlowerPotService(units, flowerPots),
+		services.NewUnitService(units, flowerPots),
+		services.NewJobService(jobs),
+	)
 
 	api := http.NewServeMux()
 	w := helpers.CreateAPIWrapHandler(dbInstance)
