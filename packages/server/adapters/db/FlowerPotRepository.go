@@ -51,7 +51,7 @@ func (p FlowerPotRepository) Remove(pot domain.FlowerPot) error {
 	return err
 }
 
-func (p FlowerPotRepository) All() (domain.FlowerPotSlice, error) {
+func (p FlowerPotRepository) GetAll() (domain.FlowerPotSlice, error) {
 	pots, err := models.FlowerPots().All(context.Background(), p.db)
 
 	if err != nil {

@@ -31,7 +31,7 @@ func (s UnitService) Pair(name string, mdns string) (domain.Unit, error) {
 }
 
 func (s UnitService) GetAll() (domain.UnitSlice, error) {
-	units, err := s.units.All()
+	units, err := s.units.GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get all units: %w", err)
 	}

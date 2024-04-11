@@ -13,8 +13,8 @@ type Logger interface {
 type UnitRepository interface {
 	Pair(string, string) (domain.Unit, error)
 	Unpair(string) error
-	All() (domain.UnitSlice, error)
 	Get(string) (domain.Unit, error)
+	GetAll() (domain.UnitSlice, error)
 }
 
 type FlowerPotRepository interface {
@@ -23,7 +23,7 @@ type FlowerPotRepository interface {
 	Remove(domain.FlowerPot) error
 	Get(string) (domain.FlowerPot, error)
 	GetPotsForUnit(string) (domain.FlowerPotSlice, error)
-	All() (domain.FlowerPotSlice, error)
+	GetAll() (domain.FlowerPotSlice, error)
 	Update(domain.FlowerPot) error
 }
 
