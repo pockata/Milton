@@ -5,11 +5,8 @@ import (
 )
 
 func AddRoutes(api *http.ServeMux, ctrl HTTPController) {
-	// w := helpers.CreateAPIWrapHandler(dbInstance)
-
-	// api.HandleFunc("GET /query-active-units", w(routes.QueryActiveUnits))
-
 	// units
+	api.HandleFunc("GET /query-active-units", ctrl.QueryActiveUnits)
 	api.HandleFunc("GET /get-paired-units", ctrl.GetPairedUnits)
 	api.HandleFunc("POST /pair-unit", ctrl.PairUnit)
 	api.HandleFunc("POST /unpair-unit", ctrl.UnpairUnit)

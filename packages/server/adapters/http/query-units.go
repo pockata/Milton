@@ -1,7 +1,6 @@
 package http
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -19,7 +18,7 @@ type PumpController struct {
 	IP   net.IP
 }
 
-func QueryActiveUnits(rw http.ResponseWriter, r *http.Request, _ *sql.DB) {
+func (c HTTPController) QueryActiveUnits(rw http.ResponseWriter, r *http.Request) {
 	// Make a channel for results and start listening
 	entriesCh := make(chan *mdns.ServiceEntry, 4)
 
@@ -46,7 +45,7 @@ func QueryActiveUnits(rw http.ResponseWriter, r *http.Request, _ *sql.DB) {
 			log.Fatalf("Error converting to json: %v\n", miltons)
 		}
 
-		fmt.Fprintf(rw, string(res))
+		fmt.Fprint(rw, string(res))
 	}()
 
 	// Start the lookup
