@@ -7,47 +7,47 @@ import (
 	"net/http"
 )
 
-type Controller struct {
+type HTTPController struct {
 	app services.App
 	log ports.Logger
 }
 
-type ControllerConfig struct {
+type HTTPControllerConfig struct {
 	App    services.App
 	Logger ports.Logger
 }
 
-func NewController(cfg ControllerConfig) Controller {
-	return Controller{
+func NewHTTPController(cfg HTTPControllerConfig) HTTPController {
+	return HTTPController{
 		app: cfg.App,
 		log: cfg.Logger,
 	}
 }
 
-type APIResponseType struct {
+type ResponseType struct {
 	Errors []string    `json:"errors"`
 	Data   interface{} `json:"data"`
 }
 
 // handle API responses
-func (c Controller) ApiResponse(rw http.ResponseWriter, r *http.Request, code int, data interface{}) {
+func (c HTTPController) Response(rw http.ResponseWriter, r *http.Request, code int, data interface{}) {
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	rw.WriteHeader(code)
 	json.NewEncoder(rw).Encode(data)
 }
 
 // handle successful API responses
-func (c Controller) SuccessResponse(rw http.ResponseWriter, r *http.Request, data interface{}) {
-	resp := APIResponseType{
+func (c HTTPController) SuccessResponse(rw http.ResponseWriter, r *http.Request, data interface{}) {
+	resp := ResponseType{
 		Data:   data,
 		Errors: nil,
 	}
 
-	c.ApiResponse(rw, r, http.StatusOK, resp)
+	c.Response(rw, r, http.StatusOK, resp)
 }
 
 // handle erroneous API responses
-func (c Controller) ErrorResponse(rw http.ResponseWriter, r *http.Request, errs ...error) {
+func (c HTTPController) ErrorResponse(rw http.ResponseWriter, r *http.Request, errs ...error) {
 	errStrs := make([]string, 0, len(errs))
 	for _, e := range errs {
 		msg := e.Error()
@@ -55,15 +55,15 @@ func (c Controller) ErrorResponse(rw http.ResponseWriter, r *http.Request, errs 
 		c.log.Error(msg, "req-id", rw.Header().Get("X-Request-Id"))
 	}
 
-	resp := APIResponseType{
+	resp := ResponseType{
 		Data:   nil,
 		Errors: errStrs,
 	}
 
-	c.ApiResponse(rw, r, http.StatusBadRequest, resp)
+	c.Response(rw, r, http.StatusBadRequest, resp)
 }
 
-func (c Controller) ValidParams(args ...string) bool {
+func (c HTTPController) ValidParams(args ...string) bool {
 	for _, arg := range args {
 		if arg == "" {
 			return false

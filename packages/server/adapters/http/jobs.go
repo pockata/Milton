@@ -14,7 +14,7 @@ type AddJobResponse struct {
 	Job domain.Job `json:"job"`
 }
 
-func (c Controller) AddJob(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) AddJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -69,7 +69,7 @@ type RemoveJobResponse struct {
 	Success bool `json:"success"`
 }
 
-func (c Controller) RemoveJob(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) RemoveJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -95,7 +95,7 @@ type GetJobResponse struct {
 	Job domain.Job `json:"job"`
 }
 
-func (c Controller) GetJob(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) GetJob(w http.ResponseWriter, r *http.Request) {
 	jobID := r.PathValue("JobID")
 
 	if !c.ValidParams(jobID) {
@@ -118,7 +118,7 @@ type GetJobsResponse struct {
 	Jobs domain.JobSlice `json:"jobs"`
 }
 
-func (c Controller) GetJobs(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) GetJobs(w http.ResponseWriter, r *http.Request) {
 	jobs, err := c.app.GetAllJobs()
 	if err != nil {
 		c.ErrorResponse(w, r, err)
@@ -134,7 +134,7 @@ type UpdateJobResponse struct {
 	Job domain.Job `json:"job"`
 }
 
-func (c Controller) UpdateJob(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return

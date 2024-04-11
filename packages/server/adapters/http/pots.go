@@ -11,7 +11,7 @@ type CreatePotResponse struct {
 	Pot domain.FlowerPot `json:"flowerPot"`
 }
 
-func (c Controller) AddPot(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) AddPot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -40,7 +40,7 @@ type RemovePotResponse struct {
 	Success bool `json:"success"`
 }
 
-func (c Controller) RemovePot(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) RemovePot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -66,7 +66,7 @@ type GetPotsResponse struct {
 	FlowerPots domain.FlowerPotSlice `json:"flowerPots"`
 }
 
-func (c Controller) GetPots(rw http.ResponseWriter, r *http.Request) {
+func (c HTTPController) GetPots(rw http.ResponseWriter, r *http.Request) {
 	unitID := r.PathValue("UnitID")
 
 	if !c.ValidParams(unitID) {
@@ -89,7 +89,7 @@ type UpdatePotResponse struct {
 	Success bool `json:"success"`
 }
 
-func (c Controller) RenamePot(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) RenamePot(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return

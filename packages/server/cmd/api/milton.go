@@ -72,7 +72,7 @@ func run(log ports.Logger) error {
 		return fmt.Errorf("couldn't connect to the database: %w", err)
 	}
 
-	ctrl := routes.NewController(routes.ControllerConfig{
+	ctrl := routes.NewHTTPController(routes.HTTPControllerConfig{
 		Logger: log,
 		App: services.NewApp(services.AppConfig{
 			FlowerPotRepository: dbAdapter.NewFlowerPotRepository(dbInstance),

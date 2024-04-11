@@ -11,7 +11,7 @@ type PairedUnitsResponse struct {
 	Units domain.UnitSlice `json:"units"`
 }
 
-func (c Controller) GetPairedUnits(rw http.ResponseWriter, r *http.Request) {
+func (c HTTPController) GetPairedUnits(rw http.ResponseWriter, r *http.Request) {
 	units, err := c.app.GetAllUnits()
 	if err != nil {
 		c.ErrorResponse(rw, r, err)
@@ -27,7 +27,7 @@ type PairUnitResponse struct {
 	Unit domain.Unit `json:"unit"`
 }
 
-func (c Controller) PairUnit(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) PairUnit(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
@@ -56,7 +56,7 @@ type UnpairUnitResponse struct {
 	Success bool `json:"success"`
 }
 
-func (c Controller) UnpairUnit(w http.ResponseWriter, r *http.Request) {
+func (c HTTPController) UnpairUnit(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.ErrorResponse(w, r, fmt.Errorf("error parsing form data: %w", err))
 		return
