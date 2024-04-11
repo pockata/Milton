@@ -25,7 +25,7 @@ func (c HTTPController) AddPot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pot, err := c.flowerPots.AddFlowerPot(name, unitID)
+	pot, err := c.flowerPots.Add(name, unitID)
 	if err != nil {
 		c.ErrorResponse(w, r, err)
 		return
@@ -52,7 +52,7 @@ func (c HTTPController) RemovePot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.flowerPots.RemoveFlowerPot(ID); err != nil {
+	if err := c.flowerPots.Remove(ID); err != nil {
 		c.ErrorResponse(w, r, err)
 		return
 	}
@@ -74,7 +74,7 @@ func (c HTTPController) GetPots(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pots, err := c.flowerPots.GetFlowerPots(unitID)
+	pots, err := c.flowerPots.GetAll(unitID)
 	if err != nil {
 		c.ErrorResponse(rw, r, err)
 		return
@@ -103,7 +103,7 @@ func (c HTTPController) RenamePot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.flowerPots.RenameFlowerPot(potID, name); err != nil {
+	if err := c.flowerPots.Rename(potID, name); err != nil {
 		c.ErrorResponse(w, r, err)
 		return
 	}

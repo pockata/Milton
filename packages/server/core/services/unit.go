@@ -21,7 +21,7 @@ func NewUnitService(
 	}
 }
 
-func (s UnitService) PairUnit(name string, mdns string) (domain.Unit, error) {
+func (s UnitService) Pair(name string, mdns string) (domain.Unit, error) {
 	unit, err := s.units.Pair(mdns, name)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't pair unit: %w", err)
@@ -30,7 +30,7 @@ func (s UnitService) PairUnit(name string, mdns string) (domain.Unit, error) {
 	return unit, nil
 }
 
-func (s UnitService) GetAllUnits() (domain.UnitSlice, error) {
+func (s UnitService) GetAll() (domain.UnitSlice, error) {
 	units, err := s.units.All()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get all units: %w", err)
@@ -39,7 +39,7 @@ func (s UnitService) GetAllUnits() (domain.UnitSlice, error) {
 	return units, nil
 }
 
-func (s UnitService) UnpairUnit(ID string) error {
+func (s UnitService) Unpair(ID string) error {
 	unit, err := s.units.Get(ID)
 	if err != nil {
 		return fmt.Errorf("couldn't find unit to delete: %w", err)

@@ -16,7 +16,7 @@ func NewJobService(jobs ports.JobRepository) JobService {
 	}
 }
 
-func (s JobService) AddJob(cfg ports.JobCreateConfig) (domain.Job, error) {
+func (s JobService) Add(cfg ports.JobCreateConfig) (domain.Job, error) {
 	job, err := s.jobs.Add(cfg)
 
 	if err != nil {
@@ -26,7 +26,7 @@ func (s JobService) AddJob(cfg ports.JobCreateConfig) (domain.Job, error) {
 	return job, nil
 }
 
-func (s JobService) RemoveJob(ID string) error {
+func (s JobService) Remove(ID string) error {
 	err := s.jobs.Remove(ID)
 
 	if err != nil {
@@ -36,7 +36,7 @@ func (s JobService) RemoveJob(ID string) error {
 	return nil
 }
 
-func (s JobService) UpdateJob(ID string, cfg ports.JobUpdateConfig) (domain.Job, error) {
+func (s JobService) Update(ID string, cfg ports.JobUpdateConfig) (domain.Job, error) {
 	job, err := s.jobs.Update(ID, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't update job: %w", err)
@@ -45,7 +45,7 @@ func (s JobService) UpdateJob(ID string, cfg ports.JobUpdateConfig) (domain.Job,
 	return job, err
 }
 
-func (s JobService) GetJob(ID string) (domain.Job, error) {
+func (s JobService) Get(ID string) (domain.Job, error) {
 	job, err := s.jobs.Get(ID)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get job: %w", err)
@@ -54,7 +54,7 @@ func (s JobService) GetJob(ID string) (domain.Job, error) {
 	return job, nil
 }
 
-func (s JobService) GetAllJobs() (domain.JobSlice, error) {
+func (s JobService) GetAll() (domain.JobSlice, error) {
 	jobs, err := s.jobs.GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get all jobs: %w", err)

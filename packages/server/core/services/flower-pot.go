@@ -21,7 +21,7 @@ func NewFlowerPotService(
 	}
 }
 
-func (s FlowerPotService) AddFlowerPot(name string, unitID string) (domain.FlowerPot, error) {
+func (s FlowerPotService) Add(name string, unitID string) (domain.FlowerPot, error) {
 	unit, err := s.units.Get(unitID)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't find unit: %w", err)
@@ -35,7 +35,7 @@ func (s FlowerPotService) AddFlowerPot(name string, unitID string) (domain.Flowe
 	return flowerPot, nil
 }
 
-func (s FlowerPotService) GetFlowerPots(unitID string) (domain.FlowerPotSlice, error) {
+func (s FlowerPotService) GetAll(unitID string) (domain.FlowerPotSlice, error) {
 	unit, err := s.units.Get(unitID)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't find unit: %w", err)
@@ -49,7 +49,7 @@ func (s FlowerPotService) GetFlowerPots(unitID string) (domain.FlowerPotSlice, e
 	return pots, nil
 }
 
-func (s FlowerPotService) RenameFlowerPot(potID string, name string) error {
+func (s FlowerPotService) Rename(potID string, name string) error {
 	pot, err := s.flowerPots.Get(potID)
 	if err != nil {
 		return fmt.Errorf("couldn't find flower pot: %w", err)
@@ -64,7 +64,7 @@ func (s FlowerPotService) RenameFlowerPot(potID string, name string) error {
 	return nil
 }
 
-func (s FlowerPotService) RemoveFlowerPot(potID string) error {
+func (s FlowerPotService) Remove(potID string) error {
 	if err := s.flowerPots.RemoveByID(potID); err != nil {
 		return fmt.Errorf("couldn't remove flower pot: %w", err)
 	}
