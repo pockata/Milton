@@ -24,23 +24,19 @@ func NewDB(SQLFile string, log ports.Logger) *DB {
 func (db *DB) Connect() (*sql.DB, error) {
 	// create & setup the DB if it hasn't been initialized
 	if _, err := os.Stat(db.SQLFile); os.IsNotExist(err) {
-		db._create()
+		db.log.Info("creating sqlite file", "file", db.SQLFile)
+
+		// Create SQLite file
+		file, err := os.Create(db.SQLFile)
+		if err != nil {
+			db.log.Error("error creating sqlite file", "err", err.Error())
+			os.Exit(1)
+		}
+
+		file.Close()
 	}
 
 	dsn := fmt.Sprintf("file:%s", db.SQLFile)
 
-	// Open handle to database like normal
 	return sql.Open("sqlite3", dsn)
-}
-
-func (db *DB) _create() {
-	db.log.Info("creating sqlite file", "file", db.SQLFile)
-
-	file, err := os.Create(db.SQLFile) // Create SQLite file
-	if err != nil {
-		db.log.Error("error creating sqlite file", "err", err.Error())
-		os.Exit(1)
-	}
-
-	defer file.Close()
 }
