@@ -26,30 +26,23 @@ func NewJobRepository(db *sql.DB) JobRepository {
 
 func (s JobRepository) Get(ID string) (domain.Job, error) {
 	ctx := context.Background()
-	job, err := models.FindJob(ctx, s.db, ID)
-
-	if err != nil {
-		return nil, err
+	mods := []qm.QueryMod{
+		models.JobWhere.ID.EQ(ID),
+		qm.Load(models.JobRels.Unit),
+		qm.Load(models.JobRels.FlowerPot),
 	}
 
-	// load the relationships
-	job.Unit().One(ctx, s.db)
-	job.FlowerPot().One(ctx, s.db)
-
-	return job, nil
+	return models.Jobs(mods...).One(ctx, s.db)
 }
 
 func (s JobRepository) GetAll() (domain.JobSlice, error) {
 	ctx := context.Background()
-	potRel := qm.Load(models.JobRels.FlowerPot)
-	unitRel := qm.Load(models.JobRels.Unit)
-	jobs, err := models.Jobs(potRel, unitRel).All(ctx, s.db)
-
-	if err != nil {
-		return nil, err
+	mods := []qm.QueryMod{
+		qm.Load(models.JobRels.FlowerPot),
+		qm.Load(models.JobRels.Unit),
 	}
 
-	return jobs, err
+	return models.Jobs(mods...).All(ctx, s.db)
 }
 
 func (s JobRepository) Remove(ID string) error {
@@ -82,7 +75,8 @@ func (s JobRepository) Add(cfg ports.JobCreateConfig) (domain.Job, error) {
 }
 
 func (s JobRepository) Update(ID string, upd ports.JobUpdateConfig) (domain.Job, error) {
-	job, err := models.FindJob(context.Background(), s.db, ID)
+	ctx := context.Background()
+	job, err := models.FindJob(ctx, s.db, ID)
 
 	if err != nil {
 		return nil, err
@@ -110,7 +104,7 @@ func (s JobRepository) Update(ID string, upd ports.JobUpdateConfig) (domain.Job,
 		return nil, errors.New("no values passed for updating")
 	}
 
-	_, err = job.Update(context.Background(), s.db, boil.Infer())
+	_, err = job.Update(ctx, s.db, boil.Infer())
 
 	if err != nil {
 		return nil, err

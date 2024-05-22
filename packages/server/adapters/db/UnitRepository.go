@@ -61,10 +61,5 @@ func (u UnitRepository) Unpair(ID string) error {
 }
 
 func (u UnitRepository) GetAll() (domain.UnitSlice, error) {
-	units, err := models.Units().All(context.Background(), u.db)
-	if err != nil {
-		return nil, err
-	}
-
-	return units, nil
+	return models.Units().All(context.Background(), u.db)
 }
