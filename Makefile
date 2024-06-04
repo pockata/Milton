@@ -12,10 +12,19 @@ ifndef VERSION
 	VERSION := $(shell git rev-parse --short HEAD)
 endif
 
+DOCKER_COMPOSE = docker compose
+GO_RUN ?= $(DOCKER_COMPOSE) -f docker-compose.base.yml -f docker-compose.dev.yml run --rm api go
 PRISMA:=PRISMA_DB_FILE="file:../${DB_FILE}" prisma-client-go
 BOILER:=sqlboiler
 SRV:=$(shell realpath "packages/server")
 DB:=$(shell realpath "${SRV}/adapters/db")
+
+.DEFAULT_GOAL=help
+
+help:
+	@echo ""
+	@echo "Run make dev"
+	@echo ""
 
 schema-sync: schema-push orm-generate
 	@echo "Schema synced"
@@ -49,19 +58,19 @@ orm-generate: boiler-check
 	@echo -e "Generating ORM...\n"
 	@cd "${DB}" && SQLITE3_DBNAME="${SRV}/${DB_FILE}" $(BOILER) sqlite3
 
-go-tidy:
-	@cd "${SRV}" && go mod tidy
+mod-tidy:
+	$(GO_RUN) mod tidy
 
 dev:
 	@echo -e "Starting dev env\n"
-	@docker compose \
+	@$(DOCKER_COMPOSE) \
 		-f docker-compose.base.yml \
 		-f docker-compose.dev.yml \
 		up
 
 prod:
 	@echo -e "Starting prod env\n"
-	@docker compose \
+	@$(DOCKER_COMPOSE) \
 		-f docker-compose.base.yml \
 		-f docker-compose.prod.yml \
 		up --build

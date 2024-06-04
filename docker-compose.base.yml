@@ -21,10 +21,13 @@ services:
       - ".env"
     volumes:
       - "./packages/server:/app"
+      # cache go mod download data
+      - "milton-go-mod-data:/go/pkg/mod"
     networks:
         - "milton"
 
-# volumes:
+volumes:
+  milton-go-mod-data:
 #   node_modules:
 
 networks:
