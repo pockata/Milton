@@ -1,0 +1,10 @@
+services:
+  # ui:
+  #   container_name: "${CONTAINER_NAME}-ui-prod"
+  #   build:
+  #     dockerfile: Dockerfile
+  api:
+    container_name: "${CONTAINER_NAME}-api-prod"
+    build:
+      dockerfile: "Dockerfile.prod"
+

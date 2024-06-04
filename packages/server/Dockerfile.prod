@@ -1,0 +1,39 @@
+# vim:ft=dockerfile
+
+##
+## Build
+##
+FROM golang:1.22.3 AS build
+
+WORKDIR /app
+
+ARG BUILD_VERSION
+RUN unset GOPATH
+
+ENV GOBIN=/gobin
+ENV PATH=$GOBIN:$PATH
+
+# add go modules lockfiles
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+
+COPY . .
+
+RUN go build -ldflags "-X milton.Build=${BUILD_VERSION}" -o /milton ./cmd/api/milton.go
+
+##
+## Deploy
+##
+FROM golang:1.22.3
+
+EXPOSE 8080
+
+ENV GOBIN=/gobin
+ENV PATH=$GOBIN:$PATH
+
+COPY --from=build /milton /milton
+# COPY --from=build /app/prisma /app/prisma
+# COPY --from=build /gobin/prisma-client-go /gobin/prisma-client-go
+
+CMD ["/milton"]
+

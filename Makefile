@@ -49,21 +49,20 @@ orm-generate: boiler-check
 	@echo -e "Generating ORM...\n"
 	@cd "${DB}" && SQLITE3_DBNAME="${SRV}/${DB_FILE}" $(BOILER) sqlite3
 
-build-server:
-	@cd "${SRV}" && go build -ldflags "-X milton.Build=${VERSION}" -o ./bin/milton ./cmd/api/milton.go
-
-run-server: build-server
-	@cd "${SRV}" && ./bin/milton
-
 go-tidy:
 	@cd "${SRV}" && go mod tidy
 
-server-watcher-check:
-	@which gow > /dev/null 2>&1 || (\
-		echo "GOW not found... installing" && \
-		go install github.com/mitranim/gow@latest \
-	)
+dev:
+	@echo -e "Starting dev env\n"
+	@docker compose \
+		-f docker-compose.base.yml \
+		-f docker-compose.dev.yml \
+		up
 
-dev: server-watcher-check
-	@cd "${SRV}" && gow -c run ./cmd/api/milton.go
+prod:
+	@echo -e "Starting prod env\n"
+	@docker compose \
+		-f docker-compose.base.yml \
+		-f docker-compose.prod.yml \
+		up --build
 

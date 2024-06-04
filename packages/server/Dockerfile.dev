@@ -1,0 +1,22 @@
+# vim:ft=dockerfile
+FROM golang:1.22.3
+
+WORKDIR /app
+
+RUN unset GOPATH
+
+# add go modules lockfiles
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+
+# prefetch the binaries, so that they will be cached and
+# not downloaded on each change
+RUN go install github.com/steebchen/prisma-client-go@v0.24.0 && \
+	prisma-client-go prefetch
+
+RUN go install github.com/mitranim/gow@latest
+
+COPY . .
+
+CMD ["gow", "-r=false", "run", "./cmd/api/milton.go"]
+

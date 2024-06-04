@@ -1,0 +1,32 @@
+services:
+  # ui:
+  #   container_name: "${CONTAINER_NAME}-ui"
+  #   build:
+  #     context: packages/ui
+  #     dockerfile: Dockerfile.dev
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #       - api
+  api:
+    container_name: "${CONTAINER_NAME}-api"
+    working_dir: "/app"
+    build:
+      context: "packages/server"
+      dockerfile: "Dockerfile.dev"
+      # ENV variables are not automatically available to the Dockerfile
+      args:
+        - BUILD_VERSION="${VERSION}"
+    env_file:
+      - ".env"
+    volumes:
+      - "./packages/server:/app"
+    networks:
+        - "milton"
+
+# volumes:
+#   node_modules:
+
+networks:
+  milton:
+
