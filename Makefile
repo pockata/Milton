@@ -15,10 +15,8 @@ endif
 DOCKER_COMPOSE = docker compose
 CONTAINER_RUN ?= $(DOCKER_COMPOSE) -f docker-compose.base.yml -f docker-compose.dev.yml run --rm api
 GO_RUN ?= $(CONTAINER_RUN) go
-BOILER:=sqlboiler
-SRV:=$(shell realpath "packages/server")
-DB:=$(shell realpath "${SRV}/adapters/db")
 PRISMA:=$(CONTAINER_RUN) ./scripts/prisma.sh
+SQLBOILER:=$(CONTAINER_RUN) ./scripts/sqlboiler.sh
 
 .DEFAULT_GOAL=help
 
@@ -48,18 +46,10 @@ schema-migrate:
 schema-format:
 	@$(PRISMA) format
 
-.PHONY: boiler-check
-boiler-check:
-	@which sqlboiler sqlboiler-sqlite3 > /dev/null 2>&1 || (\
-		echo "SQLBoiler not found... installing" && \
-		go install github.com/volatiletech/sqlboiler/v4@latest && \
-		go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-sqlite3@latest \
-	)
-
 .PHONY: orm-generate
-orm-generate: boiler-check
+orm-generate:
 	@echo -e "Generating ORM...\n"
-	@cd "${DB}" && SQLITE3_DBNAME="${SRV}/${DB_FILE}" $(BOILER) sqlite3
+	@$(SQLBOILER) sqlite3
 
 .PHONY: mod-tidy
 mod-tidy:

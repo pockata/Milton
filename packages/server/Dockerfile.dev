@@ -14,6 +14,9 @@ RUN go mod download && go mod verify
 RUN go install github.com/steebchen/prisma-client-go@v0.24.0 && \
 	prisma-client-go prefetch
 
+RUN go install github.com/volatiletech/sqlboiler/v4@latest && \
+	go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-sqlite3@latest
+
 RUN go install github.com/mitranim/gow@latest
 
 COPY . .
