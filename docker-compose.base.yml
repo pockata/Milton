@@ -22,12 +22,18 @@ services:
     volumes:
       - "./packages/server:/app"
       # cache go mod download data
-      - "milton-go-mod-data:/go/pkg/mod"
+      - "go-mod-data:/go/pkg/mod"
+      # cache go install data
+      - "go-bin-data:/gobin"
+      # cache prisma binaries
+      - "prisma-data:/root/.cache/prisma/binaries/cli"
     networks:
         - "milton"
 
 volumes:
-  milton-go-mod-data:
+  go-mod-data:
+  go-bin-data:
+  prisma-data:
 #   node_modules:
 
 networks:

@@ -13,11 +13,12 @@ ifndef VERSION
 endif
 
 DOCKER_COMPOSE = docker compose
-GO_RUN ?= $(DOCKER_COMPOSE) -f docker-compose.base.yml -f docker-compose.dev.yml run --rm api go
-PRISMA:=PRISMA_DB_FILE="file:../${DB_FILE}" prisma-client-go
+CONTAINER_RUN ?= $(DOCKER_COMPOSE) -f docker-compose.base.yml -f docker-compose.dev.yml run --rm api
+GO_RUN ?= $(CONTAINER_RUN) go
 BOILER:=sqlboiler
 SRV:=$(shell realpath "packages/server")
 DB:=$(shell realpath "${SRV}/adapters/db")
+PRISMA:=$(CONTAINER_RUN) ./scripts/prisma.sh
 
 .DEFAULT_GOAL=help
 
@@ -31,28 +32,21 @@ help:
 schema-sync: schema-push orm-generate
 	@echo "Schema synced"
 
-.PHONY: prisma-check
-prisma-check:
-	@which prisma-client-go > /dev/null 2>&1 || (\
-		echo "Prisma not found... installing" && \
-		go install github.com/prisma/prisma-client-go@latest \
-	)
-
 .PHONY: schema-push
-schema-push: prisma-check
-	@cd "${DB}" && $(PRISMA) db push
+schema-push: 
+	@$(PRISMA) db push
 
 .PHONY: schema-status
-schema-status: prisma-check
-	@cd "${DB}" && $(PRISMA) migrate status
+schema-status:
+	@$(PRISMA) migrate status
 
 .PHONY: schema-migrate
-schema-migrate: prisma-check
-	@cd "${DB}" && $(PRISMA) migrate dev
+schema-migrate:
+	@$(PRISMA) migrate dev
 
 .PHONY: schema-format
-schema-format: prisma-check
-	@cd "${DB}" && $(PRISMA) format
+schema-format:
+	@$(PRISMA) format
 
 .PHONY: boiler-check
 boiler-check:
