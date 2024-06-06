@@ -1,13 +1,4 @@
 services:
-  # ui:
-  #   container_name: "${CONTAINER_NAME}-ui"
-  #   build:
-  #     context: packages/ui
-  #     dockerfile: Dockerfile.dev
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #       - api
   api:
     container_name: "${CONTAINER_NAME}-api"
     working_dir: "/app"
@@ -28,13 +19,12 @@ services:
       # cache prisma binaries
       - "prisma-data:/root/.cache/prisma/binaries/cli"
     networks:
-        - "milton"
+      - "milton"
 
 volumes:
   go-mod-data:
   go-bin-data:
   prisma-data:
-#   node_modules:
 
 networks:
   milton:

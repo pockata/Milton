@@ -1,3 +1,18 @@
 # dev-specific overrides
-
-
+services:
+  ui:
+    container_name: "${CONTAINER_NAME}-ui"
+    working_dir: "/app"
+    build:
+      context: packages/ui
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    depends_on:
+      - api
+    volumes:
+      - "./packages/ui:/app"
+    networks:
+      - "milton"
+    ports:
+      - 5173:5173

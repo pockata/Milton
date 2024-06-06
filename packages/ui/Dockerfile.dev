@@ -1,0 +1,23 @@
+FROM node:20.11 as builder
+
+WORKDIR /app
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+COPY package*.json ./
+
+# install pnpm dependencies (cache first)
+RUN pnpm install
+
+# # copy remaining files
+# COPY . .
+
+EXPOSE 5173
+
+# USER node:node
+
+# build app
+# CMD ["sleep", "infinity"]
+CMD ["pnpm", "run", "dev", "--host", "0.0.0.0"]
